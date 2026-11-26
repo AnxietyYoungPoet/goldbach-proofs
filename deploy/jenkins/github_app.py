@@ -30,21 +30,26 @@ class GitHubApp:
         self.expires_at = 0
         self.retry_at = 0
 
+    def app_request(self, method, path, data=None):
+        if time.time() < self.retry_at:
+            raise RateLimited(self.retry_at)
+        now = int(time.time())
+        header = base64url(b'{"alg":"RS256","typ":"JWT"}')
+        claims = base64url(json.dumps({"iat": now - 60, "exp": now + 480, "iss": str(APP_ID)}).encode())
+        signing_input = header + b"." + claims
+        signature = subprocess.check_output(
+            ["openssl", "dgst", "-sha256", "-sign", self.private_key],
+            input=signing_input, timeout=10,
+        )
+        jwt = (signing_input + b"." + base64url(signature)).decode()
+        return self._request(method, path, jwt, data)
+
     def request(self, method, path, data=None):
         if time.time() < self.retry_at:
             raise RateLimited(self.retry_at)
         if time.time() + 60 >= self.expires_at:
-            now = int(time.time())
-            header = base64url(b'{"alg":"RS256","typ":"JWT"}')
-            claims = base64url(json.dumps({"iat": now - 60, "exp": now + 480, "iss": str(APP_ID)}).encode())
-            signing_input = header + b"." + claims
-            signature = subprocess.check_output(
-                ["openssl", "dgst", "-sha256", "-sign", self.private_key],
-                input=signing_input, timeout=10,
-            )
-            jwt = (signing_input + b"." + base64url(signature)).decode()
-            installation = self._request(
-                "POST", f"/app/installations/{INSTALLATION_ID}/access_tokens", jwt,
+            installation = self.app_request(
+                "POST", f"/app/installations/{INSTALLATION_ID}/access_tokens",
                 {"repositories": [REPOSITORY]},
             )
             self.token = installation["token"]
