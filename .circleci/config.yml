@@ -14,7 +14,7 @@ jobs:
   lean-proof-fixtures:
     docker:
       - image: cimg/node:22.16
-    resource_class: large
+    resource_class: xlarge
     steps:
       - checkout
       - run:
