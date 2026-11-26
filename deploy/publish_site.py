@@ -55,6 +55,30 @@ def api(path):
         return json.load(reply)
 
 
+def main_commit():
+    sha = api("/git/ref/heads/main")["object"]["sha"]
+    if not re.fullmatch(r"[a-f0-9]{40}", sha):
+        raise ValueError("GitHub did not identify the main commit")
+
+    def has_commit(repository):
+        result = subprocess.run(
+            ["git", "--git-dir", str(repository), "cat-file", "-e", sha + "^{commit}"],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10,
+        )
+        return result.returncode == 0
+
+    repository = STORE / "git"
+    if not has_commit(repository):
+        catalogue = Path("/opt/goldbach-catalogues/git")
+        if has_commit(catalogue):
+            git("fetch", "--quiet", str(catalogue), sha)
+        else:
+            git("-c", "http.version=HTTP/1.1", "-c", "protocol.version=0",
+                "fetch", "--quiet", "https://github.com/" + REPO + ".git", sha)
+        git("cat-file", "-e", sha + "^{commit}")
+    return sha
+
+
 def verified(sha):
     prs = api(f"/commits/{sha}/pulls")
     pr = next((p for p in prs if p.get("merge_commit_sha") == sha
@@ -173,18 +197,17 @@ def main():
         PENDING.unlink()
     if not (STORE / "git").exists():
         subprocess.run(["git", "init", "--bare", str(STORE / "git")], check=True)
-    git("-c", "http.version=HTTP/1.1", "-c", "protocol.version=0",
-        "fetch", "--quiet", "https://github.com/" + REPO + ".git", "refs/heads/main")
+    head = main_commit()
     if args.bootstrap:
         if CHECKPOINT.exists() or not re.fullmatch(r"[a-f0-9]{40}", args.bootstrap):
             parser.error("bootstrap requires a fresh store and a full baseline SHA")
-        git("merge-base", "--is-ancestor", args.bootstrap, "FETCH_HEAD")
+        git("merge-base", "--is-ancestor", args.bootstrap, head)
         atomic(CHECKPOINT, args.bootstrap.encode())
         print(f"Recorded website baseline {args.bootstrap}", flush=True)
         return
     baseline = CHECKPOINT.read_text().strip()
-    git("merge-base", "--is-ancestor", baseline, "FETCH_HEAD")
-    for sha in git("rev-list", "--first-parent", "--reverse", baseline + "..FETCH_HEAD").decode().splitlines():
+    git("merge-base", "--is-ancestor", baseline, head)
+    for sha in git("rev-list", "--first-parent", "--reverse", baseline + ".." + head).decode().splitlines():
         changed = git("diff", "--no-renames", "--name-only", "-z", sha + "^1", sha, "--", "deploy/").decode().split("\0")
         files = [p.removeprefix("deploy/") for p in changed if RUNTIME.fullmatch(p.removeprefix("deploy/"))]
         if not files:
