@@ -8,6 +8,7 @@ Requires=goldbach-ci-webhook.service
 
 [Service]
 Type=oneshot
+EnvironmentFile=/etc/goldbach-ci/production-release.env
 LoadCredential=github-app.pem:/etc/goldbach-ci/github-app.pem
 LoadCredential=desk-secret:/etc/goldbach-ci/desk-secret
 Environment=GOLDBACH_APP_PRIVATE_KEY=%d/github-app.pem

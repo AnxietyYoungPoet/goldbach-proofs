@@ -112,6 +112,7 @@ with closing(sqlite3.connect(env["GOLDBACH_CI_DATABASE"], timeout=15)) as db:
     if cooldown and cooldown[0] > time.time():
         raise SystemExit(0)
     print(f"Task desk returned {len(pending)} pending requests")
+    first_formal_job = int(env.get("GOLDBACH_CI_FIRST_FORMAL_JOB", "1"))
     dispatched = set()
     for pr, gap, head, handle in pending:
         if pr in dispatched:
@@ -128,6 +129,16 @@ with closing(sqlite3.connect(env["GOLDBACH_CI_DATABASE"], timeout=15)) as db:
         event = {"action": "created", "issue": {"number": pr, "pull_request": True, "user": user},
                  "comment": {"id": comment, "user": user, "body": f"/goldbach-check {gap}"}}
         queued = enqueue_delivery(db, f"desk:{comment}:{head}", "issue_comment", event, (), comment_head=head)
+        if not queued:
+            # The desk has reconfirmed that this pre-cutover submission is still unclaimed.
+            with db:
+                queued = db.execute(
+                    """UPDATE ci_jobs SET id=max(?, (SELECT coalesce(max(id),0)+1 FROM ci_jobs))
+                       WHERE kind='authoritative' AND pr=? AND sha=? AND trigger=? AND id<?
+                         AND NOT EXISTS (SELECT 1 FROM jenkins_dispatches WHERE job_id=ci_jobs.id)
+                         AND NOT EXISTS (SELECT 1 FROM desk_runs WHERE job_id=ci_jobs.id)""",
+                    (first_formal_job, pr, head, str(comment), first_formal_job),
+                ).rowcount
         dispatched.add(pr)
         if queued:
             print(f"Queued PR {pr} for {gap}")
