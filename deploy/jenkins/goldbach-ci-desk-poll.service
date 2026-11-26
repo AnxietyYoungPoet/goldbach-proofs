@@ -1,5 +1,7 @@
 [Unit]
 Description=Poll Goldbach task desk for formal proof requests
+# Production polling advances the desk queue, so rehearsal must not poll it.
+ConditionPathExists=/etc/goldbach-ci/production-release.env
 After=network-online.target goldbach-ci-webhook.service
 Wants=network-online.target
 Requires=goldbach-ci-webhook.service
