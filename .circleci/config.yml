@@ -1,5 +1,16 @@
 version: 2.1
 
+parameters:
+  pilot-pr:
+    type: integer
+    default: 0
+  pilot-head:
+    type: string
+    default: ""
+  pilot-gap:
+    type: string
+    default: ""
+
 jobs:
   lean-catalogue:
     docker:
@@ -12,6 +23,10 @@ jobs:
           command: bash .circleci/check-catalogue.sh
 
   lean-proof-fixtures:
+    environment:
+      PILOT_PR: << pipeline.parameters.pilot-pr >>
+      PILOT_HEAD: << pipeline.parameters.pilot-head >>
+      PILOT_GAP: << pipeline.parameters.pilot-gap >>
     machine:
       image: ubuntu-2404:2026.05.1
     resource_class: medium

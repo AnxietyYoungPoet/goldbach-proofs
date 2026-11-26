@@ -8,6 +8,16 @@ printf 'import Mathlib\ntheorem CheckerSuite.Pilot : True := True.intro\n' > lea
 printf 'True' > "$work/true"
 printf 'False' > "$work/false"
 printf 'import Mathlib\ntheorem CheckerSuite.Refutation : ¬ False := not_false\n' > lean/CheckerSuite/Refutation.lean
+target_dir=CheckerSuite
+if [[ "${PILOT_PR:-0}" != 0 ]]; then
+    bash .circleci/prepare-proof.sh "$PILOT_PR" "$PILOT_HEAD" "$PILOT_GAP" "$work/input"
+    proof_path=$(cat "$work/input/pr.file")
+    target_dir=PEqualNP/Outside
+    # This pilot handles independent proofs. Production also needs the existing
+    # trusted prebuild procedure for allowed imports from other project modules.
+    test ! -s "$work/input/base-imports.txt"
+    test ! -s "$work/input/outside-imports.txt"
+fi
 curl --retry 4 -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --no-modify-path --default-toolchain none
 export PATH="$HOME/.elan/bin:$PATH"
 (cd lean && elan toolchain install "$(cat lean-toolchain)" && lake exe cache get)
@@ -31,10 +41,17 @@ printf '2\n' > "$PEQUALNP_HOME/build-jobs.conf"
 (cd lean && LAKE_ARTIFACT_CACHE=false PEQUALNP_REAL_LAKE="$PNP_TC_BIN/lake" ../tools/bin/lake build checklemma +Mathlib +PEqualNP.Defs)
 chmod -R a+rX,go-w lean
 for dir in lib/lean ir; do
-    target="lean/.lake/build/$dir/CheckerSuite"
+    target="lean/.lake/build/$dir/$target_dir"
     mkdir -p "$target"
     sudo chown outsider:outsider "$target"
 done
+if [[ "$target_dir" == PEqualNP/Outside ]]; then
+    install -m 0644 "$work/input/proof.lean" "$proof_path"
+    printf 'PR %s head %s base %s\n' "$PILOT_PR" "$PILOT_HEAD" "$(git rev-parse HEAD)"
+    sha256sum "$work/input/statement.txt" "$proof_path"
+    timeout -k 30 2700 node tools/check-lean.mjs "$proof_path" "$work/input/statement.txt"
+    exit
+fi
 node tools/check-lean.mjs lean/CheckerSuite/Pilot.lean "$work/true" > "$work/accepted"
 grep '^MANIFEST {' "$work/accepted"
 status=0
