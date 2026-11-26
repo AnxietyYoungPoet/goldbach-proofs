@@ -25,7 +25,10 @@ export PNP_GITCONFIG="$PWD/.circleci/pilot-gitconfig"
 printf '[safe]\n\tdirectory = *\n' > "$PNP_GITCONFIG"
 export PNP_BUILD_LOGS="$work"
 export PEQUALNP_REAL_LAKE="$PWD/.github/scripts/lake-locked.sh"
-(cd lean && LAKE_ARTIFACT_CACHE=false lake build checklemma +PEqualNP.Defs)
+export PEQUALNP_HOME="$work/queue"
+mkdir "$PEQUALNP_HOME"
+printf '2\n' > "$PEQUALNP_HOME/build-jobs.conf"
+(cd lean && LAKE_ARTIFACT_CACHE=false PEQUALNP_REAL_LAKE="$PNP_TC_BIN/lake" ../tools/bin/lake build checklemma +Mathlib +PEqualNP.Defs)
 chmod -R a+rX,go-w lean
 for dir in lib/lean ir; do
     target="lean/.lake/build/$dir/CheckerSuite"
