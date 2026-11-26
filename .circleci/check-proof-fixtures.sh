@@ -49,7 +49,21 @@ if [[ "$target_dir" == PEqualNP/Outside ]]; then
     install -m 0644 "$work/input/proof.lean" "$proof_path"
     printf 'PR %s head %s base %s\n' "$PILOT_PR" "$PILOT_HEAD" "$(git rev-parse HEAD)"
     sha256sum "$work/input/statement.txt" "$proof_path"
-    timeout -k 30 2700 node tools/check-lean.mjs "$proof_path" "$work/input/statement.txt"
+    result_dir=/tmp/goldbach-proof-receipt
+    mkdir -m 700 "$result_dir"
+    sha256sum "$work/input/statement.txt" "$proof_path" .github/scripts/lake-locked.sh \
+        lean/.lake/build/bin/checklemma > "$work/inputs.sha256"
+    touch "$work/build.marker"
+    status=0
+    timeout -k 30 2700 node tools/check-lean.mjs "$proof_path" "$work/input/statement.txt" \
+        > "$work/checker.stdout" 2> "$work/checker.stderr" || status=$?
+    sudo pkill -KILL -u outsider || true
+    sha256sum -c "$work/inputs.sha256"
+    module=${proof_path#lean/}
+    bash .github/scripts/build-ownership.sh lean/.lake/build "$work/build.marker" \
+        "lean/.lake/build/lib/lean/${module%.lean}.olean" "$status"
+    python3 .circleci/proof-receipt.py "$PILOT_PR" "$PILOT_HEAD" "$(git rev-parse HEAD)" "$PILOT_GAP" \
+        "$work/input/statement.txt" "$proof_path" "$status" "$work/checker.stdout" "$result_dir/verdict.json"
     exit
 fi
 node tools/check-lean.mjs lean/CheckerSuite/Pilot.lean "$work/true" > "$work/accepted"
