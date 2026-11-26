@@ -13,10 +13,6 @@ if [[ "${PILOT_PR:-0}" != 0 ]]; then
     bash .circleci/prepare-proof.sh "$PILOT_PR" "$PILOT_HEAD" "$PILOT_GAP" "$work/input"
     proof_path=$(cat "$work/input/pr.file")
     target_dir=PEqualNP/Outside
-    # This pilot handles independent proofs. Production also needs the existing
-    # trusted prebuild procedure for allowed imports from other project modules.
-    test ! -s "$work/input/base-imports.txt"
-    test ! -s "$work/input/outside-imports.txt"
 fi
 curl --retry 4 -fsSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --no-modify-path --default-toolchain none
 export PATH="$HOME/.elan/bin:$PATH"
@@ -38,7 +34,26 @@ export PEQUALNP_REAL_LAKE="$PWD/.github/scripts/lake-locked.sh"
 export PEQUALNP_HOME="$work/queue"
 mkdir "$PEQUALNP_HOME"
 printf '2\n' > "$PEQUALNP_HOME/build-jobs.conf"
-(cd lean && LAKE_ARTIFACT_CACHE=false PEQUALNP_REAL_LAKE="$PNP_TC_BIN/lake" ../tools/bin/lake build checklemma +Mathlib +PEqualNP.Defs)
+(
+    cd lean
+    # Hide the outside tree during trusted prebuild, including any previously
+    # accepted dependencies that still compile with the locked account.
+    if [[ -d PEqualNP/Outside ]]; then
+        mv PEqualNP/Outside "$work/Outside"
+        restore_outside() {
+            [[ ! -e PEqualNP/Outside && ! -L PEqualNP/Outside ]] || exit 3
+            mv "$work/Outside" PEqualNP/Outside
+        }
+        trap restore_outside EXIT
+    fi
+    targets=(checklemma +Mathlib +PEqualNP.Defs)
+    if [[ -f "$work/input/base-imports.txt" ]]; then
+        while IFS= read -r dependency; do
+            [[ -z "$dependency" ]] || targets+=("+$dependency")
+        done < "$work/input/base-imports.txt"
+    fi
+    LAKE_ARTIFACT_CACHE=false PEQUALNP_REAL_LAKE="$PNP_TC_BIN/lake" ../tools/bin/lake build "${targets[@]}"
+)
 chmod -R a+rX,go-w lean
 for dir in lib/lean ir; do
     target="lean/.lake/build/$dir/$target_dir"
@@ -53,6 +68,9 @@ if [[ "$target_dir" == PEqualNP/Outside ]]; then
     mkdir -m 700 "$result_dir"
     sha256sum "$work/input/statement.txt" "$proof_path" .github/scripts/lake-locked.sh \
         lean/.lake/build/bin/checklemma > "$work/inputs.sha256"
+    while IFS= read -r dependency; do
+        [[ -z "$dependency" ]] || sha256sum "$dependency" >> "$work/inputs.sha256"
+    done < "$work/input/outside-sources.txt"
     touch "$work/build.marker"
     status=0
     timeout -k 30 2700 node tools/check-lean.mjs "$proof_path" "$work/input/statement.txt" \
