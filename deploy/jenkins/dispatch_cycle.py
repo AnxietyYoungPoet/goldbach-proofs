@@ -14,7 +14,8 @@ from route_deliveries import process
 from site_inputs import prepare_main_site
 
 
-def cycle(db, github, jenkins, jobs, *, site_input_root=None, first_job_id=1, formal_canary_pr=None):
+def cycle(db, github, jenkins, jobs, *, site_input_root=None, first_job_id=1,
+          first_formal_job_id=1, formal_canary_pr=None):
     jenkins_dispatch.initialize(db)
     db.execute("""CREATE TABLE IF NOT EXISTS github_dispatch_cooldown (
         id INTEGER PRIMARY KEY CHECK (id=1), retry_at INTEGER NOT NULL
@@ -31,8 +32,9 @@ def cycle(db, github, jenkins, jobs, *, site_input_root=None, first_job_id=1, fo
     jenkins_dispatch.reconcile(db, jenkins)
 
     def prepare(job_id, kind, sha, pr, name):
-        if kind == "authoritative" and formal_canary_pr is not None and pr != formal_canary_pr:
-            return False
+        if kind == "authoritative":
+            if job_id < first_formal_job_id or (formal_canary_pr is not None and pr != formal_canary_pr):
+                return False
         if name == "goldbach-site-revision":
             if site_input_root is None:
                 raise ValueError("Site revision runner requires a prepared input root")
@@ -55,10 +57,11 @@ def main():
     parser.add_argument("--jobs", required=True, type=Path)
     parser.add_argument("--site-input-root", type=Path)
     parser.add_argument("--first-job-id", type=int, default=1)
+    parser.add_argument("--first-formal-job-id", type=int, default=1)
     parser.add_argument("--formal-canary-pr", type=int)
     args = parser.parse_args()
-    if args.first_job_id < 1:
-        parser.error("--first-job-id must be positive")
+    if min(args.first_job_id, args.first_formal_job_id) < 1:
+        parser.error("Job cutoffs must be positive")
     if args.formal_canary_pr is not None and not 1 <= args.formal_canary_pr <= 9_999_999:
         parser.error("--formal-canary-pr must identify a pull request")
 
@@ -66,7 +69,8 @@ def main():
     client = Jenkins(args.jenkins_url, args.jenkins_user, args.jenkins_credential.read_text().strip())
     with closing(sqlite3.connect(args.database, timeout=15)) as db:
         cycle(db, GitHubApp(args.github_key), client, jobs, site_input_root=args.site_input_root,
-              first_job_id=args.first_job_id, formal_canary_pr=args.formal_canary_pr)
+              first_job_id=args.first_job_id, first_formal_job_id=args.first_formal_job_id,
+              formal_canary_pr=args.formal_canary_pr)
 
 
 if __name__ == "__main__":
