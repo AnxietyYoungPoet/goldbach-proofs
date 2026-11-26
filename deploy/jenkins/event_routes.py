@@ -31,7 +31,9 @@ def route(event, body, paths=(), *, grh_enabled=True):
         if body.get("action") not in ("opened", "synchronize", "reopened"):
             return []
         jobs = []
-        if paths is None or any(path.startswith("lean/PEqualNP/Outside/") for path in paths):
+        if paths is None or any(
+            path.startswith("lean/PEqualNP/Outside/") and path.endswith(".lean") for path in paths
+        ):
             jobs.append("advisory")
         if grh_enabled and (paths is None or any(path in GRH_PATHS or path.startswith((
             "lean/PEqualNP/GRHSource/", "lean/CheckerSuite/GRHConsumer", "lean/lake",
