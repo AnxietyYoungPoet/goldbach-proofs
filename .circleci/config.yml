@@ -1,6 +1,9 @@
 version: 2.1
 
 parameters:
+  run-proof-fixtures:
+    type: boolean
+    default: false
   pilot-pr:
     type: integer
     default: 0
@@ -54,6 +57,13 @@ workflows:
             branches:
               only: main
   proof-fixture-pilot:
+    when:
+      or:
+        - << pipeline.parameters.run-proof-fixtures >>
+        - not:
+            equal:
+              - 0
+              - << pipeline.parameters.pilot-pr >>
     jobs:
       - lean-proof-fixtures:
           filters:
