@@ -14,7 +14,7 @@ from contextlib import closing
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 
-from github_app import GitHubApp, RateLimited
+from github_app import GitHubApp, INSTALLATION_ID, RateLimited
 from github_revision import REPO, SHA, pull_request
 from proof_blob import proof_blob
 from verdict_manifest import MODULE
@@ -217,6 +217,11 @@ def main():
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     permissions = {"contents": "read", "pull_requests": "read"} if args.dry_run else CONTENTS_WRITE
     app = GitHubApp(args.private_key, permissions=permissions, request_interval=0.35)
+    if not args.dry_run:
+        installation = app.app_request("GET", f"/app/installations/{INSTALLATION_ID}")
+        if installation["permissions"].get("contents") != "write":
+            logging.info("Waiting for GitHub installation Contents write approval")
+            return
     with closing(sqlite3.connect(args.database.resolve().as_uri() + "?mode=rw", uri=True, timeout=15)) as db:
         drain(db, app, args.store.resolve(strict=True), args.first_job_id, dry_run=args.dry_run)
 
