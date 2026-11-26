@@ -54,6 +54,16 @@ class MergeProofTests(unittest.TestCase):
                                        {"sha": self.head, "merge_method": "squash"})
         tree.assert_called_once_with(app, current_main["object"]["sha"])
 
+    def test_existing_path_on_main_blocks_old_pull_request(self):
+        app = Mock()
+        app.request.side_effect = [[{"filename": self.file, "status": "added"}],
+                                   {"object": {"sha": "4" * 40}}]
+        with patch("merge_proofs.pull_request", return_value=self.pr), \
+             patch("merge_proofs.revision_tree", return_value={self.file: {}}), \
+             self.assertRaisesRegex(SkipMerge, "already exists on main"):
+            merge(app, 55, self.head, self.record, self.base)
+        self.assertTrue(all(call.args[0] == "GET" for call in app.request.call_args_list))
+
     def test_changed_head_and_extra_files_never_merge(self):
         for pr, extra_files in ((self.pr | {"head": {"sha": self.merged}}, []),
                                 (self.pr | {"changed_files": 2}, [{"filename": self.file},

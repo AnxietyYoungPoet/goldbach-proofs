@@ -131,17 +131,21 @@ def merge(app, number, head, record, base, *, dry_run=False):
         return commit, path, content
     if pr["state"] != "open":
         raise SkipMerge("The pull request was closed")
-    if pr["draft"] or pr["mergeable"] is False:
-        raise ValueError("The pull request is draft or conflicted")
+    if pr["draft"]:
+        raise ValueError("The pull request is a draft")
 
     files = app.request("GET", f"{REPO}/pulls/{number}/files?per_page=2")
     if (pr["changed_files"] != 1 or len(files) != 1 or files[0]["filename"] != path
             or files[0]["status"] != "added"):
         raise SkipMerge("The pull request must add only the registered Lean file")
-    content = proven_content(app, path, head, hashes.pop(module))
     # GitHub can keep the PR's base SHA at the historical branch point.
     base_revision = app.request("GET", f"{REPO}/git/ref/heads/main")["object"]["sha"]
     tree = revision_tree(app, base_revision)
+    if path in tree:
+        raise SkipMerge("The registered proof path already exists on main")
+    if pr["mergeable"] is False:
+        raise ValueError("The pull request has a merge conflict")
+    content = proven_content(app, path, head, hashes.pop(module))
     for name in TRUST_FILES:
         verify_dependency(tree, base, "lean/" + name)
     for name, digest in hashes.items():
