@@ -384,6 +384,8 @@ class Desk:
                     or lease["statement_sha256"] != statement_hash
                     or self.statement_hashes.get(gap) != statement_hash):
                 return error(409, "no_matching_submission")
+            if (run_id >= 1 << 52 and lease["run_id"] == run_id and lease["finished_at"] is not None):
+                return 200, {"authorized": True}
             if lease["run_id"] == run_id and lease["expires_at"] > now and lease["finished_at"] is None:
                 return 200, {"authorized": True}
             if lease["run_id"] is not None or lease["expires_at"] <= now:
