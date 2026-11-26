@@ -18,6 +18,10 @@ systemctl enable --now goldbach-catalogue.timer
 
 加载器一次解析 current 指向的不可变版本。新版本目录完整落盘后，发布器原子切换链接、仅重启 goldbach-web，并从生产 health 核对 catalogue_revision；失败时切回原版本。若线上清单与 Git 基线不同，三方合并保留现网差异；有冲突时在切换前退出。核验 API 和服务记录无需部署令牌。对批量发布检查各台 api/status 和新题详情；公开变更记录入口为 research-changes?lang=zh。
 
+## 发布社区引理导入
+
+更新任务的 `imports` 时，从已合并的提交准备一份新的 Jenkins 受信基线，其中包含对应目录和已合并的引理源文件。Lean 工具链、Mathlib 锁定版本和已构建的项目模块兼容时，可复用现有缓存。切换前用新基线检查允许列表、依赖闭包和一份实际调用引理的证明，并核对依赖清单中的源文件哈希。保留旧基线，在正式核验空闲时切换 `GOLDBACH_TRUSTED_BASE`，然后核对生产目录接口返回的 `imports` 与 Jenkins 一致。冻结的任务声明仍用 Mathlib 检查。
+
 ## 故障处理
 
 查看 journalctl -u goldbach-catalogue.service，区分身份不符、CI 待完成、清单合并冲突和重载失败。网络错误由下一轮定时器重试。需要人工回滚时先停止 timer 和发布服务，核对旧版本后原子切回 current，重启 goldbach-web 并核对 health。恢复 timer 前在 Git 上创建并审核修复 PR；若队列头仍是有冲突或未获授权的提交，须由管理员明确核对并协调基线。历史记录属于正在提供服务的快照。
