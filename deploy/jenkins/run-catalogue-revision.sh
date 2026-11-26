@@ -21,12 +21,27 @@ docker run --rm --pull never --runtime runsc --network none --read-only \
   --env "LEAN_PATH=$path" --entrypoint /usr/bin/timeout goldbach-site-agent:site-check 1800 bash -euc '
     cd "$(mktemp -d)"
     tar -xf /source.tar
-    for name in lean-toolchain lake-manifest.json lakefile.toml; do
+    for name in lean-toolchain lake-manifest.json; do
       if ! cmp -s <(sed "s/\r$//" "lean/$name") <(sed "s/\r$//" "/project/$name"); then
         echo "Prepared Lean cache does not match $name" >&2
         exit 3
       fi
     done
+    python3 -B - << "PY"
+import tomllib
+from pathlib import Path
+
+
+def catalogue_config(project):
+    config = tomllib.loads((Path(project) / "lakefile.toml").read_text(encoding="utf-8"))
+    # Catalogue statements use Mathlib. The GRH build target is unused here.
+    config["lean_lib"] = [target for target in config["lean_lib"] if target["name"] != "GRHCompact"]
+    return config
+
+
+if catalogue_config("lean") != catalogue_config("/project"):
+    raise SystemExit("Prepared Lean cache does not match the catalogue Lake configuration")
+PY
     python3 -B research/build_catalogue.py
     python3 -B -m unittest research.test_route_sources research.test_catalogue deploy.test_landau deploy.test_publish_catalogue
     python3 -B /render-catalogue.py Catalogue.lean
