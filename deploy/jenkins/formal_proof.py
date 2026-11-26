@@ -53,6 +53,6 @@ def judge(db, app, job_id, work, base, toolchain, ownership_check, *, desk_url, 
         verdict, manifest = "REJECTED", None
     else:
         verdict = "ACCEPTED"
-    enqueue(db, {"lemma_id": gap, "verdict": verdict, "manifest": manifest,
+    enqueue(db, {"lemma_id": gap, "head_sha": head, "verdict": verdict, "manifest": manifest,
                  "run_id": run_id, "run_attempt": 1})
     return run_id

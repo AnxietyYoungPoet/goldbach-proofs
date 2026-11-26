@@ -103,8 +103,12 @@ function anchor(label, href, className) {
 }
 
 function runLink(run, label) {
-  const path = Number.isSafeInteger(run.check_id) && run.check_id > 0
-    ? '/runs/' + run.check_id : '/actions/runs/' + run.run_id;
+  let path = '/actions/runs/' + run.run_id;
+  if (Number.isSafeInteger(run.check_id) && run.check_id > 0) {
+    path = '/runs/' + run.check_id;
+  } else if (typeof run.head_sha === 'string' && /^[a-f0-9]{40}$/.test(run.head_sha)) {
+    path = '/commit/' + run.head_sha;
+  }
   return anchor(label + ' ↗', repository + path, 'evidence-link');
 }
 
