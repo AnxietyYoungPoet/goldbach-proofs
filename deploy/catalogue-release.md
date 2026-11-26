@@ -1,8 +1,8 @@
 # 研究清单自动发布
 
-AI 从最新 main 开分支，为目录变更提交 PR。项目所有者或授权的数学任务发布者在 GitHub 审核并合并。ECS 定时器每五分钟按 main 第一父链顺序检查变更，要求每个目录提交对应由获授权账号合并的 PR，并有该 SHA 的 catalogue.yml push 成功记录。建议用 squash merge。目录通过直接推送或多 PR 打包时若无法对应单一合并提交，发布停下供人工核对。服务器只从 Git 读取两个目录数据文件。服务代码及工作流的运维更新仍走部署技能。
+AI 从最新 main 开分支，为目录变更提交 PR。项目所有者或授权的数学任务发布者在 GitHub 审核并合并。ECS 定时器每五分钟按 main 第一父链顺序检查变更，要求每个目录提交对应由获授权账号合并的 PR，并有该 SHA 的 `Goldbach CI / catalogue release` 成功记录。建议用 squash merge。目录通过直接推送或多 PR 打包时若无法对应单一合并提交，发布停下供人工核对。服务器只从 Git 读取两个目录数据文件。服务代码及工作流的运维更新仍走部署技能。
 
-在 `goldbach-catalogue.service` 的服务器 drop-in 中设置 `GOLDBACH_CATALOGUE_MERGER_IDS`，填入以空格分隔的 GitHub 数字用户 ID，随后执行 `systemctl daemon-reload`。项目所有者默认有权限。该名单独立于网站发布名单。
+在 `goldbach-catalogue.service` 的服务器 drop-in 中设置 `GOLDBACH_CATALOGUE_CI=jenkins`，并设置 `GOLDBACH_CATALOGUE_MERGER_IDS`，填入以空格分隔的 GitHub 数字用户 ID，随后执行 `systemctl daemon-reload`。项目所有者默认有权限。该名单独立于网站发布名单。
 
 ## 首次启用
 
