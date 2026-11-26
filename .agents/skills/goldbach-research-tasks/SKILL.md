@@ -62,9 +62,15 @@ description: 为哥德巴赫研究台及分站自动盘点剩余困难命题，�
 - 遵循同分支相邻记录的字段和 [目录测试](../../../research/test_catalogue.py)。例如 `L-goldbach-example` 对应模块 `PEqualNP.Outside.L_goldbach_example`、文件 `lean/PEqualNP/Outside/L_goldbach_example.lean`。全站 ID、模块名和文件路径须唯一。填写完整 `statement`、两种语言的 `plain_statement` 与 `brief`、可核对的 `source`，按实际情况设置 `parallel`。使用项目允许的导入。
 - 既有领取记录绑定声明字节的 SHA-256。扩充目录时对比基线，核对旧题 ID 和声明。修正改变数学含义的已发布命题时使用新 ID，在路线中解释替代关系并处理旧任务的在途领取和历史记录。仅重写路线说明不需要换 ID。
 
+## 新版路线图的挂载与验收
+
+新增任务或改路线时，按[新版路线图指南](references/roadmap-display.md)核对主站地图与分站路线面板各自的数据字段和直达链接。PR 写明研究台、路线 ID、影响的任务和中英文预览入口。发布后核对实际页面、任务详情和状态接口中的路线归属。目录测试和 CI 通过后，仍需完成这一步。
+
+单条证明 PR 只提交指定的 Lean 文件。通过权威核验后，页面从任务台状态刷新进度。证明改变研究方向时，由维护者另开路线 PR。
+
 ## 验证、发布与回读
 
-1. 运行 `python -B -m unittest research.test_catalogue deploy.test_landau` 和 `git diff --check`。人工核对中英文描述与 Lean 类型是否一致，尤其是自然数减法、整除、求和括号和存在量词。若实际需要导入其他已证引理，核对它已存在于受信基线，提交者能够按导入规则使用。
+1. 运行 `python research/build_catalogue.py`、`python -B -m unittest research.test_catalogue research.test_route_sources deploy.test_landau` 和 `git diff --check`。人工核对中英文描述与 Lean 类型是否一致，尤其是自然数减法、整除、求和括号和存在量词。若实际需要导入其他已证引理，核对它已存在于受信基线，提交者能够按导入规则使用。
 2. 参照 [Desk 测试](../../../deploy/test_desk.py)，用临时 SQLite 初始化各受影响的 Desk，调用 `/api/desk/claim`，逐一验证新增 ID 返回 201 且领取对应题目。验证过程使用隔离租约。
 3. 创建 PR 后核对 `Goldbach CI / catalogue PR`，修正在预检中发现的问题。管理员审核后，由项目所有者或获授权的数学任务发布者用自己的 GitHub 账号合并到 main。
 4. 合并后查看该 SHA 的 `Goldbach CI / catalogue release` 和网站 `research-changes`，检查生产快照里的新增 ID 和冻结声明。需要诊断发布时参见[自动发布运维](../../../deploy/catalogue-release.md)。不要把 PR 检查通过或合并动作单独报告为已上线。
