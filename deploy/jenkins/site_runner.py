@@ -10,6 +10,7 @@ import subprocess
 import tempfile
 from contextlib import closing
 from pathlib import Path
+from threading import BoundedSemaphore
 
 from formal_proof import judge
 from github_app import GitHubApp
@@ -19,6 +20,30 @@ from verify_proof import verify
 ROOT = Path("/opt/goldbach-ci")
 TRUSTED_BASE = Path(os.environ.get("GOLDBACH_TRUSTED_BASE", ROOT / "lean-replay"))
 SOCKET = Path("/run/goldbach-ci-site/runner.sock")
+MAX_PARALLEL_CHECKS = 4
+
+
+class RunnerServer(socketserver.ThreadingMixIn, socketserver.UnixStreamServer):
+    request_queue_size = 16
+    daemon_threads = True
+
+    def __init__(self, address, handler):
+        self.slots = BoundedSemaphore(MAX_PARALLEL_CHECKS)
+        super().__init__(address, handler)
+
+    def process_request(self, request, client_address):
+        self.slots.acquire()
+        try:
+            super().process_request(request, client_address)
+        except BaseException:
+            self.slots.release()
+            raise
+
+    def process_request_thread(self, request, client_address):
+        try:
+            super().process_request_thread(request, client_address)
+        finally:
+            self.slots.release()
 
 
 class Handler(socketserver.StreamRequestHandler):
@@ -110,7 +135,7 @@ def check_formal(job_id):
 
 
 def main():
-    with socketserver.UnixStreamServer(str(SOCKET), Handler) as server:
+    with RunnerServer(str(SOCKET), Handler) as server:
         os.chown(SOCKET, 0, 1000)
         SOCKET.chmod(0o660)
         server.serve_forever()
