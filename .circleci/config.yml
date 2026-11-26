@@ -13,7 +13,7 @@ jobs:
 
   lean-proof-fixtures:
     docker:
-      - image: cimg/base:2025.11
+      - image: cimg/node:22.16
     resource_class: large
     steps:
       - checkout
