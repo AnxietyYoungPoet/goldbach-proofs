@@ -25,8 +25,14 @@ def git(*args):
 
 
 def api(path):
-    with urlopen(Request("https://api.github.com/repos/" + REPO + path,
-                         headers={"Accept": "application/vnd.github+json"}), timeout=15) as reply:
+    request = Request("https://api.github.com/repos/" + REPO + path,
+                      headers={"Accept": "application/vnd.github+json"})
+    credentials = os.environ.get("CREDENTIALS_DIRECTORY")
+    if credentials:
+        token = Path(credentials) / "github-token"
+        if token.is_file():
+            request.add_unredirected_header("Authorization", f"Bearer {token.read_text().strip()}")
+    with urlopen(request, timeout=15) as reply:
         return json.load(reply)
 
 
