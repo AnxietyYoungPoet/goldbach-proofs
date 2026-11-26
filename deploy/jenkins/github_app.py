@@ -5,6 +5,7 @@ import json
 import subprocess
 import time
 from datetime import datetime
+from threading import RLock
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
@@ -24,13 +25,20 @@ def base64url(value):
 
 
 class GitHubApp:
-    def __init__(self, private_key):
+    def __init__(self, private_key, *, request_interval=0):
         self.private_key = private_key
         self.token = None
         self.expires_at = 0
         self.retry_at = 0
+        self.request_interval = request_interval
+        self.next_request = 0
+        self.lock = RLock()
 
     def app_request(self, method, path, data=None):
+        with self.lock:
+            return self._app_request(method, path, data)
+
+    def _app_request(self, method, path, data):
         if time.time() < self.retry_at:
             raise RateLimited(self.retry_at)
         now = int(time.time())
@@ -45,6 +53,10 @@ class GitHubApp:
         return self._request(method, path, jwt, data)
 
     def request(self, method, path, data=None):
+        with self.lock:
+            return self._installation_request(method, path, data)
+
+    def _installation_request(self, method, path, data):
         if time.time() < self.retry_at:
             raise RateLimited(self.retry_at)
         if time.time() + 60 >= self.expires_at:
@@ -74,6 +86,10 @@ class GitHubApp:
                 "User-Agent": "goldbach-ci",
             },
         )
+        delay = self.next_request - time.monotonic()
+        if delay > 0:
+            time.sleep(delay)
+        self.next_request = time.monotonic() + self.request_interval
         try:
             with urlopen(request, timeout=15) as response:
                 body = response.read()

@@ -21,6 +21,7 @@ ROOT = Path("/opt/goldbach-ci")
 TRUSTED_BASE = Path(os.environ.get("GOLDBACH_TRUSTED_BASE", ROOT / "lean-replay"))
 SOCKET = Path("/run/goldbach-ci-site/runner.sock")
 MAX_PARALLEL_CHECKS = 4
+PROOF_GITHUB = GitHubApp("/etc/goldbach-ci/github-app.pem", request_interval=0.25)
 
 
 class RunnerServer(socketserver.ThreadingMixIn, socketserver.UnixStreamServer):
@@ -101,8 +102,7 @@ def check_proof(number, head):
         base = TRUSTED_BASE.resolve(strict=True)
         with tempfile.TemporaryDirectory(prefix="goldbach-proof-") as temporary:
             work = Path(temporary)
-            app = GitHubApp("/etc/goldbach-ci/github-app.pem")
-            file = prepare(app, number, head, base, work)
+            file = prepare(PROOF_GITHUB, number, head, base, work)
             verify(file, work, base / "lean", ROOT / "toolchains/lean-4.36.0",
                    ROOT / "controller/build-ownership.sh")
     except (ValueError, OSError, subprocess.SubprocessError):
@@ -123,7 +123,7 @@ def check_formal(job_id):
         with closing(sqlite3.connect(database, timeout=15)) as db, tempfile.TemporaryDirectory(
                 prefix="goldbach-formal-") as temporary:
             run = judge(
-                db, GitHubApp("/etc/goldbach-ci/github-app.pem"), job_id, Path(temporary), base,
+                db, PROOF_GITHUB, job_id, Path(temporary), base,
                 ROOT / "toolchains/lean-4.36.0", ROOT / "controller/build-ownership.sh",
                 desk_url=desk_url, secret=Path(secret_file).read_bytes().strip(),
             )
