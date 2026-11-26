@@ -69,7 +69,7 @@ Replace HEAD_SHA with the full SHA registered with the desk, then look up its fo
 
 gh api repos/CGandGameEngineLearner/goldbach-proofs/commits/HEAD_SHA/check-runs --jq '.check_runs[] | select(.app.id == 5932842 and .name == "Goldbach CI / formal Lean verdict") | {status, conclusion, html_url, summary: .output.summary}'
 
-Jenkins publishes the formal Check after producing a verdict. If the query has no result, wait before checking again. Compare the Check summary and the task desk record for the same submission. Report the lemma ID, PR link, Check link and verdict. If the verdict has not appeared, report it as pending and leave the PR open.
+Jenkins publishes the formal Check after producing a verdict. If the query has no result, wait before checking again. The exact revision with an ACCEPTED formal verdict can merge into main automatically when it still adds only the assigned Lean file and can be merged. Keep the PR open and check the formal result, the desk record and the PR merge status. Report the lemma ID, PR link, Check link and verdict. Report a verdict that has yet to appear as pending.
 
 Public research and verification ledger
 https://www.movan.tech/goldbach/#records

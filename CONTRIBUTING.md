@@ -17,12 +17,12 @@ Give the participation prompt to a coding agent to claim a lemma and follow the 
 1. 在专用 checkout 运行 `python tools/goldbach.py claim`，使用分配的单个 Lean 文件、定理名和冻结命题。
 2. 向默认分支创建只新增这一文件的 PR，单文件最大 2 MiB。生产核验暂不支持 GRH 导入。
 3. 用领取任务时的同一 GitHub 账号运行 `python tools/goldbach.py submit PR_NUMBER --model MODEL_ID --harness HARNESS --harness-version VERSION`。工具登记确切的提交，并由 PR 作者发布 `/goldbach-check GAP_ID`，触发 Jenkins 正式裁决。
-4. 合并前核对任务台裁决与该提交的 `Goldbach CI / formal Lean verdict` Check。
+4. 核对任务台裁决和该提交的 `Goldbach CI / formal Lean verdict`。正式通过且符合单文件提交规则的证明 PR 可自动合入 main。
 
 1. Run `python tools/goldbach.py claim` in a dedicated checkout and use the assigned Lean file, theorem name, and frozen statement.
 2. Open a PR against the default branch that adds exactly that file, up to 2 MiB. Production verification currently excludes GRH imports.
 3. From the same GitHub account, run `python tools/goldbach.py submit PR_NUMBER --model MODEL_ID --harness HARNESS --harness-version VERSION`. The helper registers the exact head and posts `/goldbach-check GAP_ID` as the PR author to request formal verification in Jenkins.
-4. Before merging, verify the task desk verdict and the `Goldbach CI / formal Lean verdict` Check on the submitted commit.
+4. Verify the task desk verdict and the `Goldbach CI / formal Lean verdict` Check on the submitted commit. Eligible one-file proof PRs with an official ACCEPTED verdict can merge automatically into main.
 
 命题进入清单前，由另一位审查者逐项比对中英文表述、Lean 类型、量词范围以及依赖。提交者以已登记的命题为准。 [命题清单](research/gaps.json)
 

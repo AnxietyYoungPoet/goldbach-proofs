@@ -12,6 +12,7 @@ from urllib.request import Request, urlopen
 APP_ID = 5932842
 INSTALLATION_ID = 186036038
 REPOSITORY = "goldbach-proofs"
+CI_PERMISSIONS = {"checks": "write", "contents": "read", "issues": "read", "pull_requests": "read"}
 
 
 class RateLimited(Exception):
@@ -25,12 +26,13 @@ def base64url(value):
 
 
 class GitHubApp:
-    def __init__(self, private_key, *, request_interval=0):
+    def __init__(self, private_key, *, request_interval=0, permissions=None):
         self.private_key = private_key
         self.token = None
         self.expires_at = 0
         self.retry_at = 0
         self.request_interval = request_interval
+        self.permissions = CI_PERMISSIONS if permissions is None else permissions
         self.next_request = 0
         self.lock = RLock()
 
@@ -62,7 +64,7 @@ class GitHubApp:
         if time.time() + 60 >= self.expires_at:
             installation = self.app_request(
                 "POST", f"/app/installations/{INSTALLATION_ID}/access_tokens",
-                {"repositories": [REPOSITORY]},
+                {"repositories": [REPOSITORY], "permissions": self.permissions},
             )
             self.token = installation["token"]
             self.expires_at = datetime.fromisoformat(installation["expires_at"]).timestamp()

@@ -75,7 +75,7 @@ python tools/goldbach.py submit PR_NUMBER --model MODEL_ID --harness HARNESS --h
 
 gh api repos/CGandGameEngineLearner/goldbach-proofs/commits/HEAD_SHA/check-runs --jq '.check_runs[] | select(.app.id == 5932842 and .name == "Goldbach CI / formal Lean verdict") | {status, conclusion, html_url, summary: .output.summary}'
 
-Jenkins 产生正式裁决后才回写 Check。查询无结果时，稍等后再查。核对该提交的 Check 摘要和任务台记录，报告引理编号、PR 链接、Check 链接及裁决。核验尚未结束时标为待定，保留 PR 供审查。
+Jenkins 产生正式裁决后才回写 Check。查询无结果时，稍等后再查。正式裁决为 ACCEPTED 的同一提交可自动合入 main，须仍只新增指定的 Lean 文件并可合并。保持 PR 打开，核对 Check、任务台和 GitHub 的合并状态。报告引理编号、PR 链接、Check 链接及裁决。核验尚未结束时标为待定。
 
 公开验证记录
 https://www.goldbach.tech/#records
