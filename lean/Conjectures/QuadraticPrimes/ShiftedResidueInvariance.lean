@@ -6,4 +6,5 @@ theorem Conjectures.QuadraticPrimes.ShiftedResidueInvariance :
   intro m a b c h
   have same : Nat.ModEq m (a ^ 2 + 1) (b ^ 2 + 1) :=
     PEqualNP.Outside.L_quadratic_primes_residue_invariance m a b h
+  change Nat.ModEq m (a ^ 2 + (1 + c)) (b ^ 2 + (1 + c))
   simpa only [Nat.add_assoc] using same.add_right c
