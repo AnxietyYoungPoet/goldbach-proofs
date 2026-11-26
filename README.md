@@ -17,6 +17,7 @@ Mathematicians guide the research and review formal statements. Anyone can bring
 - [权威验证 / Authoritative verification](deploy/README.md#jenkins-生产-ci)
 - [网站源码与部署 / Website source and deployment](deploy/README.md)
 - [研究路线与命题发布技能](.agents/skills/goldbach-research-tasks/SKILL.md) · 调用 `$goldbach-research-tasks` 拆解、验证和发布任务
+- [研究成果核对与卡片技能](.agents/skills/goldbach-result-cards/SKILL.md) · 调用 `$goldbach-result-cards` 核对 Lean 裁决并制作带网站二维码的成果卡片
 - [部署更新技能 / Deployment skill](.agents/skills/goldbach-deploy/SKILL.md) · 在支持仓库技能的 Codex 中用 `$goldbach-deploy` 调用
 
 保留上游的 `PEqualNP` Lean 命名空间和验证器。这个项目的命题来自默认分支的清单。
