@@ -27,7 +27,7 @@ services:
 
   isolated-site-agent:
     <<: *site-agent
-    command: [-jar, /agent.jar, -url, "http://jenkins:8080/", -name, goldbach-isolated-site, -secret, "@/run/agent-secret", -webSocket, -workDir, /workspace]
+    command: ["-XX:ActiveProcessorCount=4", -jar, /agent.jar, -url, "http://jenkins:8080/", -name, goldbach-isolated-site, -secret, "@/run/agent-secret", -webSocket, -workDir, /workspace]
     mem_limit: 1g
     volumes:
       - ./agent.jar:/agent.jar:ro
