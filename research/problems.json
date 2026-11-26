@@ -14630,6 +14630,127 @@
         ]
       },
       {
+        "id": "L-quadratic-primes-fixed-offset-endpoint-count",
+        "statement": "∀ a x l u : ℕ, 10 ≤ x → 1 ≤ a → a ≤ x → u ≤ 3 * x → (∑ n ∈ Finset.Icc l u, (((n ^ 2 + a).primeFactors.filter (fun p => x < p)).card)) ≤ 2 * (u + 1 - l)",
+        "plain_statement": {
+          "zh": "当 1≤a≤x 时，固定短窗口 [l,u] 中，n²+a 的大于 x 的不同素因子与整数 n 组成的对数至多是窗口长度的两倍。",
+          "en": "For 1≤a≤x, the number of pairs of an integer in the fixed interval and a distinct prime factor >x of n²+a is at most twice the interval length."
+        },
+        "brief": {
+          "zh": "若同一个 n 有三个不同大素因子，乘积大于 x³；n≤3x 且 x≥10 保证 n²+a<x³。逐项计数，允许空区间。",
+          "en": "Three distinct large prime factors would have product >x³, but n²+a<x³. Sum the per-integer bound."
+        },
+        "source": "https://github.com/CGandGameEngineLearner/goldbach-proofs/pull/2643",
+        "program": "correlation",
+        "parallel": true,
+        "depends_on": [],
+        "file": "lean/PEqualNP/Outside/L_quadratic_primes_fixed_offset_endpoint_count.lean",
+        "module": "PEqualNP.Outside.L_quadratic_primes_fixed_offset_endpoint_count",
+        "imports": [],
+        "role": "lemma",
+        "track": "high-mode-extension",
+        "route_source": "high-mode-extension"
+      },
+      {
+        "id": "L-quadratic-primes-high-eventual-epsilon",
+        "statement": "let block := fun x : ℕ => Finset.Ioc x (2*x); let budget := fun x : ℕ => (x : ℝ) * Real.log (x : ℝ); let roots := fun a q : ℕ => (Finset.range q).filter (fun r => q ∣ r^2+a); let primes := fun x : ℕ => (Finset.Ioc x ((2*x)^2+1)).filter (fun p => Nat.Prime p ∧ p^100000 ≤ (2*x)^132301); let window := fun x p : ℕ => (block x).filter (fun n => p^100000 ≤ n^132301); let angle := fun p k : ℕ => fun t : ℝ => 2 * Real.pi * k * t / p; let coef := fun a x p k : ℕ => (∑ r ∈ roots a p, ∑ n ∈ window x p, Real.cos (angle p k ((n : ℝ) - r))) / p; let freqs := fun (p : ℕ) (low : Bool) => (Finset.Ico 1 p).filter (fun k => if low then min k (p-k) ≤ Nat.sqrt p else Nat.sqrt p < min k (p-k)); let part := fun (a x p : ℕ) (low : Bool) => (∑ k ∈ freqs p low, coef a x p k) * Real.log (p : ℝ); let modes := fun (a x : ℕ) (low : Bool) => ∑ p ∈ primes x, part a x p low; ∀ ε : ℝ, 0 < ε → ∃ X : ℕ, ∀ x : ℕ, X ≤ x → modes 1 x false ≤ ε * budget x",
+        "plain_statement": {
+          "zh": "现有窗口的真实高频和最终小于任意正比例的 x log x。",
+          "en": "For the original windows the actual high-mode sum eventually lies below ε x log x for every ε>0."
+        },
+        "brief": {
+          "zh": "参考 #2643 的端点总估计和 eventual_linear_of_power_log，把取无界子序列之前的界提出来。",
+          "en": "Extract the estimate before the unbounded-subsequence specialization in #2643."
+        },
+        "source": "https://github.com/CGandGameEngineLearner/goldbach-proofs/pull/2643",
+        "program": "correlation",
+        "parallel": true,
+        "depends_on": [],
+        "file": "lean/PEqualNP/Outside/L_quadratic_primes_high_eventual_epsilon.lean",
+        "module": "PEqualNP.Outside.L_quadratic_primes_high_eventual_epsilon",
+        "imports": [],
+        "role": "lemma",
+        "track": "high-mode-extension",
+        "route_source": "high-mode-extension"
+      },
+      {
+        "id": "L-quadratic-primes-high-shift-exponent-extension",
+        "statement": "∀ (offset U V : ℕ), 0 < offset → 0 < V → 132301 * V ≤ 100000 * U → 40 * U ≤ 53 * V → (let block := fun x : ℕ => Finset.Ioc x (2*x); let budget := fun x : ℕ => (x : ℝ) * Real.log (x : ℝ); let roots := fun a q : ℕ => (Finset.range q).filter (fun r => q ∣ r^2+a); let primes := fun x : ℕ => (Finset.Ioc x ((2*x)^2+offset)).filter (fun p => Nat.Prime p ∧ p^V ≤ (2*x)^U); let window := fun x p : ℕ => (block x).filter (fun n => p^V ≤ n^U); let angle := fun p k : ℕ => fun t : ℝ => 2 * Real.pi * k * t / p; let coef := fun a x p k : ℕ => (∑ r ∈ roots a p, ∑ n ∈ window x p, Real.cos (angle p k ((n : ℝ) - r))) / p; let freqs := fun (p : ℕ) (low : Bool) => (Finset.Ico 1 p).filter (fun k => if low then min k (p-k) ≤ Nat.sqrt p else Nat.sqrt p < min k (p-k)); let part := fun (a x p : ℕ) (low : Bool) => (∑ k ∈ freqs p low, coef a x p k) * Real.log (p : ℝ); let modes := fun (a x : ℕ) (low : Bool) => ∑ p ∈ primes x, part a x p low; ∀ ε : ℝ, 0 < ε → ∃ X : ℕ, ∀ x : ℕ, X ≤ x → modes offset x false ≤ ε * budget x)",
+        "plain_statement": {
+          "zh": "对于每个固定正整数 a 和 1.32301≤U/V≤1.325，证明 n²+a 的相应高频和最终小于任意正比例的 x log x。",
+          "en": "For a fixed positive offset and 1.32301≤U/V≤1.325, prove eventual ε-smallness of the corresponding n²+a high modes."
+        },
+        "brief": {
+          "zh": "固定端点可复用计数引理。主要新难点是移动端点 p^(V/U) 附近的短区间根计数，尤其要核对余因子短区间和坏素数。此题是高频推广；更高大素因子指数还需要新的低频及其余预算。",
+          "en": "Use the fixed-endpoint count and weighted envelope. The main gap is moving-endpoint root counting, including short cofactor intervals and exceptional primes. This only extends the high-mode estimate."
+        },
+        "source": "https://github.com/CGandGameEngineLearner/goldbach-proofs/pull/2643",
+        "program": "correlation",
+        "parallel": true,
+        "depends_on": [
+          "L-quadratic-primes-weighted-endpoint-envelope",
+          "L-quadratic-primes-fixed-offset-endpoint-count"
+        ],
+        "file": "lean/PEqualNP/Outside/L_quadratic_primes_high_shift_exponent_extension.lean",
+        "module": "PEqualNP.Outside.L_quadratic_primes_high_shift_exponent_extension",
+        "imports": [],
+        "role": "target",
+        "challenge_only": true,
+        "track": "high-mode-extension",
+        "route_source": "high-mode-extension"
+      },
+      {
+        "id": "L-quadratic-primes-joint-middle-budget",
+        "statement": "(let block := fun x : ℕ => Finset.Ioc x (2*x); let primes := fun x : ℕ => (Finset.Ioc x ((2*x)^2+1)).filter (fun p => Nat.Prime p ∧ p^100000 ≤ (2*x)^132301); let window := fun x p : ℕ => (block x).filter (fun n => p^100000 ≤ n^132301); let countHits := fun a x p : ℕ => ((window x p).filter (fun n => p ∣ n^2+a)).card; let band := fun a x n : ℕ => (n^2+a).primeFactors.filter (fun p => x<p ∧ p^100000 ≤ n^132301); let mass := fun a x : ℕ => ∑ n ∈ block x, ∑ p ∈ band a x n, ((n^2+a).factorization p : ℝ) * Real.log (p : ℝ); let excess := fun a x : ℕ => ∑ n ∈ block x, ∑ p ∈ band a x n, (((n^2+a).factorization p - 1 : ℕ) : ℝ) * Real.log (p : ℝ); let inc := fun a x : ℕ => ∑ p ∈ primes x, (countHits a x p : ℝ) * Real.log (p : ℝ); ∀ a x : ℕ, 0<a → mass a x = inc a x + excess a x) → (let block := fun x : ℕ => Finset.Ioc x (2*x); let roots := fun a q : ℕ => (Finset.range q).filter (fun r => q ∣ r^2+a); let primes := fun x : ℕ => (Finset.Ioc x ((2*x)^2+1)).filter (fun p => Nat.Prime p ∧ p^100000 ≤ (2*x)^132301); let window := fun x p : ℕ => (block x).filter (fun n => p^100000 ≤ n^132301); let countHits := fun a x p : ℕ => ((window x p).filter (fun n => p ∣ n^2+a)).card; let inc := fun a x : ℕ => ∑ p ∈ primes x, (countHits a x p : ℝ) * Real.log (p : ℝ); let model := fun a x : ℕ => ∑ p ∈ primes x, ((window x p).card : ℝ) * ((roots a p).card : ℝ) / p * Real.log (p : ℝ); let angle := fun p k : ℕ => fun t : ℝ => 2 * Real.pi * k * t / p; let coef := fun a x p k : ℕ => (∑ r ∈ roots a p, ∑ n ∈ window x p, Real.cos (angle p k ((n : ℝ) - r))) / p; let freqs := fun (p : ℕ) (low : Bool) => (Finset.Ico 1 p).filter (fun k => if low then min k (p-k) ≤ Nat.sqrt p else Nat.sqrt p < min k (p-k)); let part := fun (a x p : ℕ) (low : Bool) => (∑ k ∈ freqs p low, coef a x p k) * Real.log (p : ℝ); let modes := fun (a x : ℕ) (low : Bool) => ∑ p ∈ primes x, part a x p low; ∀ x : ℕ, inc 1 x = model 1 x + modes 1 x true + modes 1 x false) → (let block := fun x : ℕ => Finset.Ioc x (2*x); let budget := fun x : ℕ => (x : ℝ) * Real.log (x : ℝ); let roots := fun a q : ℕ => (Finset.range q).filter (fun r => q ∣ r^2+a); let primes := fun x : ℕ => (Finset.Ioc x ((2*x)^2+1)).filter (fun p => Nat.Prime p ∧ p^100000 ≤ (2*x)^132301); let window := fun x p : ℕ => (block x).filter (fun n => p^100000 ≤ n^132301); let model := fun a x : ℕ => ∑ p ∈ primes x, ((window x p).card : ℝ) * ((roots a p).card : ℝ) / p * Real.log (p : ℝ); ∃ X : ℕ, ∀ x ≥ X, model 1 x ≤ (2/5 : ℝ)*budget x) → (let block := fun x : ℕ => Finset.Ioc x (2*x); let budget := fun x : ℕ => (x : ℝ) * Real.log (x : ℝ); let roots := fun a q : ℕ => (Finset.range q).filter (fun r => q ∣ r^2+a); let primes := fun x : ℕ => (Finset.Ioc x ((2*x)^2+1)).filter (fun p => Nat.Prime p ∧ p^100000 ≤ (2*x)^132301); let window := fun x p : ℕ => (block x).filter (fun n => p^100000 ≤ n^132301); let angle := fun p k : ℕ => fun t : ℝ => 2 * Real.pi * k * t / p; let coef := fun a x p k : ℕ => (∑ r ∈ roots a p, ∑ n ∈ window x p, Real.cos (angle p k ((n : ℝ) - r))) / p; let freqs := fun (p : ℕ) (low : Bool) => (Finset.Ico 1 p).filter (fun k => if low then min k (p-k) ≤ Nat.sqrt p else Nat.sqrt p < min k (p-k)); let part := fun (a x p : ℕ) (low : Bool) => (∑ k ∈ freqs p low, coef a x p k) * Real.log (p : ℝ); let modes := fun (a x : ℕ) (low : Bool) => ∑ p ∈ primes x, part a x p low; ∃ X : ℕ, ∀ x ≥ X, modes 1 x true ≤ (1/5 : ℝ)*budget x) → (let block := fun x : ℕ => Finset.Ioc x (2*x); let budget := fun x : ℕ => (x : ℝ) * Real.log (x : ℝ); let roots := fun a q : ℕ => (Finset.range q).filter (fun r => q ∣ r^2+a); let primes := fun x : ℕ => (Finset.Ioc x ((2*x)^2+1)).filter (fun p => Nat.Prime p ∧ p^100000 ≤ (2*x)^132301); let window := fun x p : ℕ => (block x).filter (fun n => p^100000 ≤ n^132301); let angle := fun p k : ℕ => fun t : ℝ => 2 * Real.pi * k * t / p; let coef := fun a x p k : ℕ => (∑ r ∈ roots a p, ∑ n ∈ window x p, Real.cos (angle p k ((n : ℝ) - r))) / p; let freqs := fun (p : ℕ) (low : Bool) => (Finset.Ico 1 p).filter (fun k => if low then min k (p-k) ≤ Nat.sqrt p else Nat.sqrt p < min k (p-k)); let part := fun (a x p : ℕ) (low : Bool) => (∑ k ∈ freqs p low, coef a x p k) * Real.log (p : ℝ); let modes := fun (a x : ℕ) (low : Bool) => ∑ p ∈ primes x, part a x p low; ∀ B : ℕ, ∃ x : ℕ, B<x ∧ modes 1 x false ≤ (19/50 : ℝ)*budget x) → (let block := fun x : ℕ => Finset.Ioc x (2*x); let budget := fun x : ℕ => (x : ℝ) * Real.log (x : ℝ); let band := fun a x n : ℕ => (n^2+a).primeFactors.filter (fun p => x<p ∧ p^100000 ≤ n^132301); let excess := fun a x : ℕ => ∑ n ∈ block x, ∑ p ∈ band a x n, (((n^2+a).factorization p - 1 : ℕ) : ℝ) * Real.log (p : ℝ); ∃ X : ℕ, ∀ x ≥ X, excess 1 x ≤ (1/100 : ℝ)*budget x) → (let w := fun (n p : ℕ) => (((n^2+1).factorization p : ℕ) : ℝ) * Real.log (p:ℝ); let middle := fun (x : ℕ) => Finset.sum (Finset.Ioc x (2*x)) (fun n => Finset.sum ((n^2+1).primeFactors.filter (fun p => x < p ∧ p^100000 ≤ n^132301)) (w n)); ∃ d : ℝ, 0 < d ∧ ∀ B : ℕ, ∃ x : ℕ, B < x ∧ middle x ≤ (1-d)*(x:ℝ)*Real.log (x:ℝ))",
+        "plain_statement": {
+          "zh": "由六条冻结命题推出 1.32301 路线的中段节省，固定取 δ=1/100。",
+          "en": "Derive the frozen middle-band saving from six exact inputs, using δ=1/100."
+        },
+        "brief": {
+          "zh": "让高频的无界尺度越过零频、低频、重复赋值的全部最终阈值和 x≥2，再代入两条分解恒等式。预算 2/5+1/5+19/50+1/100=99/100。低频仍须完成既有两条任务。",
+          "en": "Choose the high-mode witness beyond every eventual threshold and x≥2. Substitute both decomposition identities and sum the four budgets."
+        },
+        "source": "https://github.com/CGandGameEngineLearner/goldbach-proofs/pull/2643",
+        "program": "correlation",
+        "parallel": true,
+        "depends_on": [
+          "L-quadratic-primes-levent-natural-extension-margin",
+          "L-quadratic-primes-levent-root-system",
+          "L-quadratic-primes-levent-scale-input",
+          "L-quadratic-primes-levent-correlation-margin",
+          "L-quadratic-primes-levent-theta-margin",
+          "L-quadratic-primes-levent-sieve-margin"
+        ],
+        "file": "lean/PEqualNP/Outside/L_quadratic_primes_joint_middle_budget.lean",
+        "module": "PEqualNP.Outside.L_quadratic_primes_joint_middle_budget",
+        "imports": [],
+        "role": "lemma",
+        "track": "high-mode-extension",
+        "route_source": "high-mode-extension"
+      },
+      {
+        "id": "L-quadratic-primes-weighted-endpoint-envelope",
+        "statement": "∀ (ι : Type) [DecidableEq ι] (rows near : Finset ι) (f : ι → ℝ) (x C D α β γ : ℝ), 1 ≤ x → 0 ≤ C → 0 ≤ D → near ⊆ rows → (rows.card : ℝ) ≤ C * x ^ α → (near.card : ℝ) ≤ C * x ^ γ → (∀ i ∈ near, f i ≤ D * (Real.log x)^2) → (∀ i ∈ rows \\ near, f i ≤ D * x ^ (α / 2 - β) * (Real.log x)^2) → (∑ i ∈ rows, f i) ≤ C * D * (x ^ γ + x ^ (3 * α / 2 - β)) * (Real.log x)^2",
+        "plain_statement": {
+          "zh": "把近、远端点合成可复用的实指数包络，分别保留 γ 和 3α/2−β。",
+          "en": "Combine near and far endpoint estimates with separate exponents γ and 3α/2−β."
+        },
+        "brief": {
+          "zh": "近端和远端分别取基数上界，写清远端指数来自素数行数和单项平方根因子。α≤1.325 时取 β=0.99，远端指数最多 0.9975。",
+          "en": "Split the finite sum and use cardinality and real-power multiplication. With α≤1.325 and β=0.99 the far exponent is at most 0.9975."
+        },
+        "source": "https://github.com/CGandGameEngineLearner/goldbach-proofs/pull/2643",
+        "program": "correlation",
+        "parallel": true,
+        "depends_on": [],
+        "file": "lean/PEqualNP/Outside/L_quadratic_primes_weighted_endpoint_envelope.lean",
+        "module": "PEqualNP.Outside.L_quadratic_primes_weighted_endpoint_envelope",
+        "imports": [],
+        "role": "lemma",
+        "track": "high-mode-extension",
+        "route_source": "high-mode-extension"
+      },
+      {
         "id": "L-quadratic-primes-levent-conjugate-frequency",
         "file": "lean/PEqualNP/Outside/L_quadratic_primes_levent_conjugate_frequency.lean",
         "module": "PEqualNP.Outside.L_quadratic_primes_levent_conjugate_frequency",
@@ -17400,6 +17521,49 @@
           }
         ],
         "route_id": "split-middle-prime-mass-at-exponent-1-15"
+      },
+      {
+        "en": [
+          "High-frequency extension and the 1.32301 bridge",
+          "Extract eventual smallness from #2643 and explore moving windows for n²+a and α≤1.325. For the current exponent, prove the two low-mode bounds and combine zero, low, high and excess masses on the same scales."
+        ],
+        "zh": [
+          "高频估计推广与 1.32301 合成",
+          "把 #2643 提升为最终一致的小量，并试把移动窗口推广到 n²+a 和 α≤1.325。当前指数路线先补低频的内外两段，再把零频、低频、高频和重复赋值预算在同一尺度合成。"
+        ],
+        "tasks": [
+          {
+            "id": "L-quadratic-primes-fixed-offset-endpoint-count",
+            "zh": "当 1≤a≤x 时，固定短窗口 [l,u] 中，n²+a 的大于 x 的不同素因子与整数 n 组成的对数至多是窗口长度的两倍。",
+            "en": "For 1≤a≤x, the number of pairs of an integer in the fixed interval and a distinct prime factor >x of n²+a is at most twice the interval length.",
+            "route_source": "high-mode-extension"
+          },
+          {
+            "id": "L-quadratic-primes-high-eventual-epsilon",
+            "zh": "现有窗口的真实高频和最终小于任意正比例的 x log x。",
+            "en": "For the original windows the actual high-mode sum eventually lies below ε x log x for every ε>0.",
+            "route_source": "high-mode-extension"
+          },
+          {
+            "id": "L-quadratic-primes-high-shift-exponent-extension",
+            "zh": "对于每个固定正整数 a 和 1.32301≤U/V≤1.325，证明 n²+a 的相应高频和最终小于任意正比例的 x log x。",
+            "en": "For a fixed positive offset and 1.32301≤U/V≤1.325, prove eventual ε-smallness of the corresponding n²+a high modes.",
+            "route_source": "high-mode-extension"
+          },
+          {
+            "id": "L-quadratic-primes-joint-middle-budget",
+            "zh": "由六条冻结命题推出 1.32301 路线的中段节省，固定取 δ=1/100。",
+            "en": "Derive the frozen middle-band saving from six exact inputs, using δ=1/100.",
+            "route_source": "high-mode-extension"
+          },
+          {
+            "id": "L-quadratic-primes-weighted-endpoint-envelope",
+            "zh": "把近、远端点合成可复用的实指数包络，分别保留 γ 和 3α/2−β。",
+            "en": "Combine near and far endpoint estimates with separate exponents γ and 3α/2−β.",
+            "route_source": "high-mode-extension"
+          }
+        ],
+        "route_source": "high-mode-extension"
       },
       {
         "en": [

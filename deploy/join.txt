@@ -25,6 +25,8 @@ Read the research brief and its source. Open problems marked parallel accept ind
 
 3. Prove the frozen statement
 
+Start with gap.brief, gap.source and gap.depends_on if present. Search this repository and Mathlib for existing lemmas and similar proofs, including verified PRs. Consult papers, textbooks and external Lean repositories for techniques you can adapt. Check their hypotheses, quantifiers and scope, and cite the sources you used in the PR. For direct Lean imports, use Mathlib and modules listed in gap.imports. Proofs in unmerged PRs can inform your approach.
+
 Production Jenkins verification currently has GRH disabled. Use Mathlib and the other imports allowed by the assignment. If available locally, run lake exe cache get from lean/ to restore the pinned Mathlib cache.
 
 Create exactly the Lean file in gap.file, up to 2 MiB. Declare theorem gap.module with the exact type in gap.statement. Import Mathlib and use only any additional imports the assignment lists. Write a complete proof using the allowed axioms. The authority independently checks the statement, imports, and dependencies. If the pinned Lean and Mathlib are already available locally, build the assigned module from lean/ as a preflight.
