@@ -5,6 +5,7 @@ import re
 import subprocess
 from pathlib import Path
 
+from lean_dep_cache import compile_cached, context as cache_context, key as cache_key
 from verdict_manifest import MODULE, build_manifest
 
 PROOF_CPUS = 8
@@ -72,8 +73,7 @@ def verify(file, work, project, toolchain, ownership_check):
         "--env", "PATH=/toolchain/bin:/usr/bin:/bin",
     ]
     outside = "/project/.lake/build/lib/lean/PEqualNP/Outside"
-    # Only the guarded closure is visible. Dependencies enter the cache for this run
-    # individually after their sandbox exits and the ownership check succeeds.
+    # Only the guarded closure is visible to the submission and independent replay.
     compiled = work / "compiled"
     compiled.mkdir()
 
@@ -96,10 +96,20 @@ def verify(file, work, project, toolchain, ownership_check):
         ], check=True, timeout=30)
         (out / artifact).replace(compiled / artifact)
 
+    cache_dir = os.environ.get("GOLDBACH_LEAN_DEP_CACHE")
+    cache = Path(cache_dir) if cache_dir and dependencies else None
+    context = cache_context(project, work, f"goldbach-olean-v1:{IMAGE}:{PROOF_CPUS}".encode()) if cache else None
+    keys = {}
     for name in dependencies:
         source = project.joinpath(*name.split(".")).with_suffix(".lean")
-        (proof / source.name).write_bytes(source.read_bytes())
-        compile_module(source.name, 240)
+        content = source.read_bytes()
+        (proof / source.name).write_bytes(content)
+        if cache is None:
+            compile_module(source.name, 240)
+            continue
+        keys[name] = cache_key(context, name, content, keys)
+        compile_cached(cache, name, keys[name], compiled / source.with_suffix(".olean").name,
+                       lambda: compile_module(source.name, 240))
     compile_module(leaf, 1200, submission=True)
     verification = subprocess.run(flags + [
         "--mount", f"type=bind,source={compiled},target={outside},readonly",

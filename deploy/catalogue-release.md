@@ -24,6 +24,8 @@ systemctl enable --now goldbach-catalogue.timer
 
 自动合并服务从 Jenkins 的正式 ACCEPTED 记录和已送达裁决中读取候选，使用 GitHub App 的 Contents 写权限精确匹配 PR head 后 squash 合并。该服务把已核验的 Lean 源文件加入下一份受信快照，原子切换 `/opt/goldbach-ci/proof-bases/current`，然后重试下一批。初始化时把已核对的受信基线放入该目录，再将 current 指向它，设置 Jenkins 的 `GOLDBACH_TRUSTED_BASE` 解析该链接。维护者发布新任务目录时暂停合并服务，更新同一个链接，使用的基线须包含已出版的证明。保留旧快照直至所有引用该快照的任务退出。通过 `goldbach-ci-proof-merge.timer` 控制自动合并，日志写入对应 systemd 服务。新增导入权限仍由研究目录维护者在任务的 `imports` 字段里配置。
 
+Jenkins 在 `/var/cache/goldbach-lean-deps` 复用社区依赖的 `.olean`。缓存键包含固定工具链、Mathlib 锁文件、受信依赖的构建产物、模块源码和其传递依赖。并行任务使用同一缓存键时只编译一次。提交的证明每次独立编译并进行 Lean 内核核验。
+
 ## 故障处理
 
 查看 journalctl -u goldbach-catalogue.service，区分身份不符、CI 待完成、清单合并冲突和重载失败。网络错误由下一轮定时器重试。需要人工回滚时先停止 timer 和发布服务，核对旧版本后原子切回 current，重启 goldbach-web 并核对 health。恢复 timer 前在 Git 上创建并审核修复 PR；若队列头仍是有冲突或未获授权的提交，须由管理员明确核对并协调基线。历史记录属于正在提供服务的快照。
