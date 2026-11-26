@@ -918,6 +918,9 @@ class Handler(BaseHTTPRequestHandler):
                 desk = DESKS[GAP_DESKS[lemma]]
             elif not isinstance(lemma, str) or not re.fullmatch(r"L-goldbach-[a-z0-9-]+", lemma):
                 raise ValueError()
+            circleci = (1 << 52) <= run_id < (1 << 53)
+            if circleci != (record.get("provider") == "circleci") or run_id >= (1 << 53):
+                raise ValueError()
             if verdict not in {"ACCEPTED", "REJECTED"}:
                 raise ValueError()
             if verdict == "ACCEPTED":
@@ -934,7 +937,7 @@ class Handler(BaseHTTPRequestHandler):
         except (ValueError, KeyError, TypeError, OSError):
             return self.reply(400, b'{}')
         with closing(sqlite3.connect(desk.db_path)) as conn, conn:
-            if desk is not DESK and conn.execute(
+            if (circleci or desk is not DESK) and conn.execute(
                 "SELECT 1 FROM goldbach_leases WHERE run_id = ? AND gap = ?", (run_id, lemma)
             ).fetchone() is None:
                 return self.reply(409, b'{"error":"no matching authorized run"}')

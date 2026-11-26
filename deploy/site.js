@@ -103,7 +103,11 @@ function anchor(label, href, className) {
 }
 
 function runLink(run, label) {
-  return anchor(label + ' ↗', repository + '/actions/runs/' + run.run_id, 'evidence-link');
+  const firstCircleCIJob = 2 ** 52;
+  const url = run.run_id >= firstCircleCIJob
+    ? 'https://circleci.com/gh/CGandGameEngineLearner/goldbach-proofs/' + (run.run_id - firstCircleCIJob)
+    : repository + '/actions/runs/' + run.run_id;
+  return anchor(label + ' ↗', url, 'evidence-link');
 }
 
 function verdictTag(label, status) {
