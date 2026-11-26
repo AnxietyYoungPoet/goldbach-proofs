@@ -10,13 +10,35 @@ output=$(realpath "$2")
 checker=$(realpath "$3")
 test -f "$checker"
 test -z "$(ls -A -- "$output")"
-mirror=$(mktemp -d)
-trap 'rmdir "$mirror" 2>/dev/null || rm -r -- "$mirror"' EXIT
+archive=$(mktemp)
+trap 'rm -f -- "$archive"' EXIT
+curl --fail --silent --show-error --proto '=https' --connect-timeout 10 --max-time 80 \
+  --output "$archive" "https://codeload.github.com/CGandGameEngineLearner/goldbach-proofs/tar.gz/$sha"
 
-export GIT_TERMINAL_PROMPT=0 GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null
-git init --quiet --bare "$mirror"
-git -C "$mirror" -c credential.helper= fetch --quiet --no-tags --depth=1 \
-  https://github.com/CGandGameEngineLearner/goldbach-proofs.git "$sha"
-test "$(git -C "$mirror" rev-parse FETCH_HEAD)" = "$sha"
-git -C "$mirror" -c core.autocrlf=false archive --format=tar -o "$output/source.tar" "$sha"
+# Keep the layout and commit header expected by the existing Jenkins jobs.
+python3 - "$sha" "$archive" "$output/source.tar" <<'PY'
+import sys
+import tarfile
+from pathlib import PurePosixPath
+
+sha, archive, output = sys.argv[1:]
+prefix = "goldbach-proofs-" + sha
+with tarfile.open(archive, "r:gz") as source:
+    if source.pax_headers.get("comment") != sha:
+        raise SystemExit("GitHub archive does not identify the requested commit")
+    with tarfile.open(output, "w", pax_headers={"comment": sha}) as destination:
+        for member in source:
+            parts = PurePosixPath(member.name).parts
+            if not parts or parts[0] != prefix or ".." in parts:
+                raise SystemExit("Invalid GitHub archive path")
+            if len(parts) == 1 and member.isdir():
+                continue
+            if len(parts) == 1 or not (member.isfile() or member.isdir() or member.issym()):
+                raise SystemExit("Unsupported GitHub archive entry")
+            contents = source.extractfile(member) if member.isfile() else None
+            member.name = "/".join(parts[1:])
+            member.pax_headers.pop("path", None)
+            destination.addfile(member, contents)
+PY
+test "$(git get-tar-commit-id < "$output/source.tar")" = "$sha"
 install -m 644 "$checker" "$output/check-site.sh"
