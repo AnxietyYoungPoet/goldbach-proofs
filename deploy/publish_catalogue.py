@@ -169,7 +169,8 @@ def main():
     STORE.mkdir(exist_ok=True)
     if not (STORE / "git").exists():
         subprocess.run(["git", "init", "--bare", STORE / "git"], check=True)
-    git("fetch", "--quiet", "https://github.com/" + REPO + ".git", "refs/heads/main")
+    git("-c", "http.version=HTTP/1.1", "-c", "protocol.version=0",
+        "fetch", "--quiet", "https://github.com/" + REPO + ".git", "refs/heads/main")
     if args.bootstrap:
         sha = args.bootstrap
         if CURRENT.exists() or not re.fullmatch("[a-f0-9]{40}", sha):

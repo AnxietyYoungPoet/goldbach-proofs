@@ -168,7 +168,8 @@ def main():
         PENDING.unlink()
     if not (STORE / "git").exists():
         subprocess.run(["git", "init", "--bare", str(STORE / "git")], check=True)
-    git("fetch", "--quiet", "https://github.com/" + REPO + ".git", "refs/heads/main")
+    git("-c", "http.version=HTTP/1.1", "-c", "protocol.version=0",
+        "fetch", "--quiet", "https://github.com/" + REPO + ".git", "refs/heads/main")
     if args.bootstrap:
         if CHECKPOINT.exists() or not re.fullmatch(r"[a-f0-9]{40}", args.bootstrap):
             parser.error("bootstrap requires a fresh store and a full baseline SHA")
