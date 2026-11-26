@@ -4,7 +4,7 @@ set -euo pipefail
 [[ $# -eq 1 ]] || { echo "Usage: $0 <prepared source archive>" >&2; exit 2; }
 archive=$(realpath "$1")
 base=/opt/goldbach-ci
-project=$base/lean-replay/lean
+project=$(realpath "${GOLDBACH_TRUSTED_BASE:-$base/lean-replay}/lean")
 tc=$base/toolchains/lean-4.36.0
 
 docker run --rm --pull never --runtime runsc --network none --read-only \

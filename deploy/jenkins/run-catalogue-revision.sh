@@ -5,7 +5,7 @@ set -euo pipefail
 archive=$(realpath "$1")
 base=/opt/goldbach-ci
 tc=$base/toolchains/lean-4.36.0
-project=$base/lean-replay/lean
+project=$(realpath "${GOLDBACH_TRUSTED_BASE:-$base/lean-replay}/lean")
 renderer=$base/controller/render-catalogue.py
 path=$(cd "$project" && PATH="$tc/bin:$PATH" lake env printenv LEAN_PATH)
 path=${path//"$project"/\/project}

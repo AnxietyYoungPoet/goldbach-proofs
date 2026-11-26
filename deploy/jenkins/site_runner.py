@@ -17,6 +17,7 @@ from prepare_proof import grh_enabled, prepare
 from verify_proof import verify
 
 ROOT = Path("/opt/goldbach-ci")
+TRUSTED_BASE = Path(os.environ.get("GOLDBACH_TRUSTED_BASE", ROOT / "lean-replay"))
 SOCKET = Path("/run/goldbach-ci-site/runner.sock")
 
 
@@ -71,8 +72,8 @@ class Handler(socketserver.StreamRequestHandler):
 
 
 def check_proof(number, head):
-    base = ROOT / "lean-replay"
     try:
+        base = TRUSTED_BASE.resolve(strict=True)
         with tempfile.TemporaryDirectory(prefix="goldbach-proof-") as temporary:
             work = Path(temporary)
             app = GitHubApp("/etc/goldbach-ci/github-app.pem")
@@ -92,8 +93,8 @@ def check_formal(job_id):
     if not all((database, desk_url, secret_file)):
         logging.error("Formal proof runner configuration is missing")
         return 3
-    base = ROOT / "lean-replay"
     try:
+        base = TRUSTED_BASE.resolve(strict=True)
         with closing(sqlite3.connect(database, timeout=15)) as db, tempfile.TemporaryDirectory(
                 prefix="goldbach-formal-") as temporary:
             run = judge(
