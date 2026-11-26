@@ -8,20 +8,25 @@ import os
 import re
 import sqlite3
 import subprocess
+import tarfile
 import tempfile
 import time
-from contextlib import closing
+from contextlib import closing, contextmanager
 from pathlib import Path
 from urllib.error import HTTPError, URLError
+from urllib.request import urlopen
 
-from github_app import GitHubApp, INSTALLATION_ID, RateLimited
+from github_app import APP_ID, GitHubApp, INSTALLATION_ID, RateLimited
 from github_revision import REPO, SHA, pull_request
 from proof_blob import proof_blob
 from verdict_manifest import MODULE, PROOF_MODULE, module_path
 
-CONTENTS_WRITE = {"contents": "write", "pull_requests": "read"}
+CONTENTS_WRITE = {"contents": "write", "pull_requests": "read", "checks": "read"}
 TRUST_FILES = ("lean-toolchain", "lake-manifest.json", "lakefile.toml", "CheckLemma.lean")
 BATCH = 4
+CATALOGUES = ("research/gaps.json", "research/problems.json")
+DESK_HEALTH = "https://www.movan.tech/goldbach/health"
+ROOT = Path("/opt/goldbach-ci")
 
 
 class SkipMerge(ValueError):
@@ -158,26 +163,72 @@ def merge(app, number, head, record, base, *, dry_run=False):
     return result["sha"], path, content
 
 
+@contextmanager
+def snapshot_for(store, base, revision):
+    with tempfile.TemporaryDirectory(prefix="stage-", dir=store) as folder:
+        snapshot = Path(folder) / "base"
+        subprocess.run(["cp", "-al", base, snapshot], check=True, timeout=90)
+        yield snapshot
+        target = store / f"{revision}-{Path(folder).name}"
+        snapshot.rename(target)
+        link = Path(folder) / "current"
+        link.symlink_to(target)
+        os.replace(link, store / "current")
+
+
 def publish_source(store, base, revision, path, content):
     previous = base / path
     if previous.is_file() and previous.read_bytes() == content:
         return
     if previous.exists():
         raise ValueError("Refusing to overwrite an existing trusted proof")
-    with tempfile.TemporaryDirectory(prefix="stage-", dir=store) as folder:
-        snapshot = Path(folder) / "base"
-        subprocess.run(["cp", "-al", base, snapshot], check=True, timeout=90)
+    with snapshot_for(store, base, revision) as snapshot:
         (snapshot / path).parent.mkdir(parents=True, exist_ok=True)
         (snapshot / path).write_bytes(content)
         # The copied files are hard-linked. Replace any marker before writing.
         marker = snapshot / "PROOF_MERGE_REVISION"
         marker.unlink(missing_ok=True)
         marker.write_text(revision + "\n", encoding="ascii")
-        target = store / f"{revision}-{Path(folder).name}"
-        snapshot.rename(target)
-        link = Path(folder) / "current"
-        link.symlink_to(target)
-        os.replace(link, store / "current")
+
+
+def sync_published_catalogue(app, store):
+    with urlopen(DESK_HEALTH, timeout=10) as response:
+        health = json.loads(response.read(4096))
+    revision = health["catalogue_revision"]
+    if health["status"] != "ok" or not SHA.fullmatch(revision or ""):
+        raise ValueError("The task desk did not report a healthy catalogue revision")
+    base = (store / "current").resolve(strict=True)
+    marker = base / "CATALOGUE_REVISION"
+    if marker.is_file() and marker.read_text().strip() == revision:
+        return
+    comparison = app.request("GET", f"{REPO}/compare/{revision}...main?per_page=1")
+    if comparison["merge_base_commit"]["sha"] != revision:
+        raise ValueError("The published catalogue is outside main history")
+    checks = app.request("GET", f"{REPO}/commits/{revision}/check-runs?check_name=Goldbach+CI+%2F+catalogue+release")
+    if not any(check["name"] == "Goldbach CI / catalogue release"
+               and check["head_sha"] == revision and check["conclusion"] == "success"
+               and check["app"]["id"] == APP_ID for check in checks["check_runs"]):
+        raise ValueError("The published catalogue has no successful release check for its exact commit")
+    with tempfile.TemporaryDirectory(prefix="catalogue-", dir=store) as folder:
+        stage = Path(folder)
+        subprocess.run(["bash", ROOT / "controller/prepare-site-revision.sh", revision, stage,
+                        ROOT / "site-replay/check-site.sh"], check=True, timeout=120)
+        with tarfile.open(stage / "source.tar") as archive, snapshot_for(store, base, revision) as snapshot:
+            for name in TRUST_FILES:
+                with archive.extractfile("lean/" + name) as upstream:
+                    if upstream.read() != (base / "lean" / name).read_bytes():
+                        raise ValueError(f"The published catalogue requires a new Lean baseline: {name}")
+            for name in CATALOGUES:
+                with archive.extractfile(name) as source:
+                    document = source.read(20 * 1024 * 1024)
+                json.loads(document)
+                destination = snapshot / name
+                destination.unlink()
+                destination.write_bytes(document)
+            marker = snapshot / "CATALOGUE_REVISION"
+            marker.unlink(missing_ok=True)
+            marker.write_text(revision + "\n", encoding="ascii")
+    logging.info("Published Jenkins catalogue from %s", revision)
 
 
 def eligible(db, first_job_id):
@@ -241,7 +292,13 @@ def main():
             logging.info("Waiting for GitHub installation Contents write approval")
             return
     with closing(sqlite3.connect(args.database.resolve().as_uri() + "?mode=rw", uri=True, timeout=15)) as db:
-        drain(db, app, args.store.resolve(strict=True), args.first_job_id, dry_run=args.dry_run)
+        store = args.store.resolve(strict=True)
+        if not args.dry_run:
+            try:
+                sync_published_catalogue(app, store)
+            except (OSError, ValueError, KeyError, RateLimited, subprocess.SubprocessError) as error:
+                logging.warning("Catalogue sync deferred: %s", error)
+        drain(db, app, store, args.first_job_id, dry_run=args.dry_run)
 
 
 if __name__ == "__main__":

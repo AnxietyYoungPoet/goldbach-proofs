@@ -26,6 +26,8 @@ systemctl enable --now goldbach-catalogue.timer
 
 Jenkins 在 `/var/cache/goldbach-lean-deps` 复用社区依赖的 `.olean`。缓存键包含固定工具链、Mathlib 锁文件、受信依赖的构建产物、模块源码和其传递依赖。并行任务使用同一缓存键时只编译一次。提交的证明每次独立编译并进行 Lean 内核核验。
 
+合并工作器会同步生产任务台报告的目录版本。只同步已进入 main、且获同一个 GitHub App 的正式目录发布检查通过的提交。若该提交需要更换 Lean 工具链、锁文件或核验器，需先准备相应的 Jenkins 受信基线。
+
 ## 故障处理
 
 查看 journalctl -u goldbach-catalogue.service，区分身份不符、CI 待完成、清单合并冲突和重载失败。网络错误由下一轮定时器重试。需要人工回滚时先停止 timer 和发布服务，核对旧版本后原子切回 current，重启 goldbach-web 并核对 health。恢复 timer 前在 Git 上创建并审核修复 PR；若队列头仍是有冲突或未获授权的提交，须由管理员明确核对并协调基线。历史记录属于正在提供服务的快照。
