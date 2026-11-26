@@ -12,14 +12,21 @@ jobs:
           command: bash .circleci/check-catalogue.sh
 
   lean-proof-fixtures:
-    docker:
-      - image: cimg/node:22.16
-    resource_class: xlarge
+    machine:
+      image: ubuntu-2404:2026.05.1
+    resource_class: medium
     steps:
       - checkout
       - run:
           name: Check proof and refutation fixtures
-          command: bash .circleci/check-proof-fixtures.sh
+          command: |
+            command -v node
+            sudo fallocate -l 8G /var/tmp/goldbach-fixture.swap
+            sudo chmod 600 /var/tmp/goldbach-fixture.swap
+            sudo mkswap /var/tmp/goldbach-fixture.swap
+            sudo swapon /var/tmp/goldbach-fixture.swap
+            free -h
+            bash .circleci/check-proof-fixtures.sh
 
 workflows:
   catalogue-pilot:
