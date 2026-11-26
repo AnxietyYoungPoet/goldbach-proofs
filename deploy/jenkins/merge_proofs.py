@@ -52,11 +52,26 @@ def git_blob(content):
     return hashlib.sha1(f"blob {len(content)}\0".encode() + content).hexdigest()
 
 
-def verify_dependency(app, base, revision, path, expected=None):
+def revision_tree(app, revision):
+    if not SHA.fullmatch(revision):
+        raise ValueError("Expected a full GitHub revision")
+    commit = app.request("GET", f"{REPO}/git/commits/{revision}")
+    tree_sha = commit["tree"]["sha"]
+    if commit["sha"] != revision or not SHA.fullmatch(tree_sha):
+        raise ValueError("GitHub returned a different merge base")
+    tree = app.request("GET", f"{REPO}/git/trees/{tree_sha}?recursive=1")
+    if tree["sha"] != tree_sha or tree["truncated"]:
+        raise ValueError("GitHub did not return the complete main tree")
+    return {entry["path"]: entry for entry in tree["tree"]}
+
+
+def verify_dependency(tree, base, path, expected=None):
     content = (base / path).read_bytes()
     if expected is not None and hashlib.sha256(content).hexdigest() != expected:
         raise ValueError(f"Verified dependency changed in the Jenkins baseline: {path}")
-    if metadata(app, path, revision)["sha"] != git_blob(content):
+    entry = tree.get(path, {})
+    if (entry.get("type") != "blob" or entry.get("mode") != "100644"
+            or entry.get("sha") != git_blob(content)):
         raise ValueError(f"Verified dependency or pinned Lean input changed on main: {path}")
 
 
@@ -121,10 +136,11 @@ def merge(app, number, head, record, base, *, dry_run=False):
     content = proven_content(app, path, head, hashes.pop(module))
     # GitHub can keep the PR's base SHA at the historical branch point.
     base_revision = app.request("GET", f"{REPO}/git/ref/heads/main")["object"]["sha"]
+    tree = revision_tree(app, base_revision)
     for name in TRUST_FILES:
-        verify_dependency(app, base, base_revision, "lean/" + name)
+        verify_dependency(tree, base, "lean/" + name)
     for name, digest in hashes.items():
-        verify_dependency(app, base, base_revision, "lean/" + name.replace(".", "/") + ".lean", digest)
+        verify_dependency(tree, base, "lean/" + module_path(name), digest)
     if dry_run:
         return None, path, content
 
