@@ -76,7 +76,8 @@ class GitHubApp:
         )
         try:
             with urlopen(request, timeout=15) as response:
-                return json.load(response)
+                body = response.read()
+                return json.loads(body) if body else None
         except HTTPError as error:
             if error.code not in (403, 429):
                 raise
