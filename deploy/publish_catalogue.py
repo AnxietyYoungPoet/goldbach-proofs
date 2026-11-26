@@ -9,6 +9,7 @@ import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 REPO = "CGandGameEngineLearner/goldbach-proofs"
@@ -104,8 +105,24 @@ def approved(sha):
     if os.environ.get("GOLDBACH_CATALOGUE_CI") == "circleci":
         run = circleci_release(sha)
         return (detail, run) if run else None
+    if os.environ.get("GOLDBACH_CATALOGUE_CI") == "jenkins":
+        run = jenkins_release(sha)
+        return (detail, {"id": run["id"], "provider": "jenkins"}) if run else None
     runs = api("/actions/workflows/catalogue.yml/runs?event=push&branch=main&head_sha=" + sha)["workflow_runs"]
     return next(((detail, r) for r in runs if r["head_sha"] == sha and r["conclusion"] == "success"), None)
+
+
+def jenkins_release(sha):
+    name = "Goldbach CI / catalogue release"
+    query = urlencode({"check_name": name, "app_id": 5932842, "per_page": 100})
+    runs = api(f"/commits/{sha}/check-runs?{query}")["check_runs"]
+    return next((run for run in runs
+                 if run.get("head_sha") == sha
+                 and run.get("name") == name
+                 and (run.get("app") or {}).get("id") == 5932842
+                 and run.get("external_id") == f"main:catalogue:{sha}"
+                 and run.get("status") == "completed"
+                 and run.get("conclusion") == "success"), None)
 
 
 def activate(sha, parent, pr, run):

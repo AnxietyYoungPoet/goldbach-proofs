@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 import time
 from pathlib import Path
+from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 REPO = "CGandGameEngineLearner/goldbach-proofs"
@@ -60,8 +61,23 @@ def verified(sha):
     allowed = {OWNER_ID, *(int(uid) for uid in os.environ.get("GOLDBACH_SITE_RELEASE_MERGER_IDS", "").split())}
     if (detail.get("merged_by") or {}).get("id") not in allowed:
         raise RuntimeError(f'PR #{pr["number"]} requires an authorized website publisher')
+    if os.environ.get("GOLDBACH_SITE_CI") == "jenkins":
+        return jenkins_release(sha) is not None
     runs = api("/actions/workflows/site-release.yml/runs?event=push&branch=main&head_sha=" + sha)["workflow_runs"]
     return any(run["head_sha"] == sha and run["conclusion"] == "success" for run in runs)
+
+
+def jenkins_release(sha):
+    name = "Goldbach CI / site release"
+    query = urlencode({"check_name": name, "app_id": 5932842, "per_page": 100})
+    runs = api(f"/commits/{sha}/check-runs?{query}")["check_runs"]
+    return next((run for run in runs
+                 if run.get("head_sha") == sha
+                 and run.get("name") == name
+                 and (run.get("app") or {}).get("id") == 5932842
+                 and run.get("external_id") == f"main:site:{sha}"
+                 and run.get("status") == "completed"
+                 and run.get("conclusion") == "success"), None)
 
 
 def restart(expected):

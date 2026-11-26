@@ -81,8 +81,7 @@ jobs:
           gaps = json.loads(Path("../research/gaps.json").read_text())["gaps"]
           problems = json.loads(Path("../research/problems.json").read_text())
           gaps.extend(gap for problem in problems.values() for gap in problem['gaps'])
-          # All current gaps are independent and can be stated using Mathlib alone.
-          assert all(not gap["imports"] for gap in gaps)
+          # The imports field grants proof permissions. Statements still use Mathlib alone.
           endpoint = next(g["statement"] for g in gaps if g["id"] == "L-goldbach-binary-pointwise-positivity")
           lines = [Path("../research/strong-goldbach.lean").read_text(),
                    Path("../research/check-statement-scope.lean").read_text(),

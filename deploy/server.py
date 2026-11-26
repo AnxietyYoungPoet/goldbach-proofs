@@ -227,7 +227,7 @@ def research_status(desk=DESK, *, compact=False, board=False):
             if desk is DESKS.get("quadratic-primes"):
                 extra["lpf_record"] = exponent_record(desk, conn)
             if conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='verdicts'").fetchone():
-                projection = "json_object('lemma_id', json_extract(CAST(body AS TEXT), '$.lemma_id'), 'verdict', json_extract(CAST(body AS TEXT), '$.verdict'), 'run_id', run_id, 'run_attempt', attempt)" if board else "body"
+                projection = "json_object('lemma_id', json_extract(CAST(body AS TEXT), '$.lemma_id'), 'verdict', json_extract(CAST(body AS TEXT), '$.verdict'), 'run_id', run_id, 'run_attempt', attempt, 'check_id', json_extract(CAST(body AS TEXT), '$.check_id'))" if board else "body"
                 results = [json.loads(body) for (body,) in conn.execute(
                     f"SELECT {projection} FROM verdicts ORDER BY run_id DESC, attempt DESC LIMIT ?", (1 if board else 12,)
                 )]
@@ -874,6 +874,8 @@ class Handler(BaseHTTPRequestHandler):
                 run = int(row["run"])
                 if row.get("provider") == "circleci":
                     return f"https://app.circleci.com/pipelines/github/CGandGameEngineLearner/goldbach-proofs/{run}"
+                if row.get("provider") == "jenkins":
+                    return f"{repo}/runs/{run}"
                 return f"{repo}/actions/runs/{run}"
 
             rows = "".join(
@@ -1052,6 +1054,8 @@ class Handler(BaseHTTPRequestHandler):
             run_id = record["run_id"]
             attempt = record["run_attempt"]
             manifest = record["manifest"]
+            if "check_id" in record and (type(record["check_id"]) is not int or not 1 <= record["check_id"] < 2**53):
+                raise ValueError()
             if type(run_id) is not int or run_id < 1 or type(attempt) is not int or attempt < 1:
                 raise ValueError()
             if isinstance(lemma, str) and lemma in GAP_DESKS:
