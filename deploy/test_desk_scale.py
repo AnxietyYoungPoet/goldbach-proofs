@@ -113,6 +113,26 @@ class DeskScaleTest(unittest.TestCase):
                 guide = self.request(path + "/join" + ("-zh" if lang == "zh" else "") + ".txt", text=True)
                 self.assertIn('--model MODEL_ID --harness HARNESS', guide)
 
+    def test_circleci_verdict_requires_lease_and_replays_without_extra_credit(self):
+        claim = self.request("/api/desk/claim", {"handle": "alice"}, expected=201)
+        gap = claim["gap"]
+        submission = {"pr": 2546, "head": "a" * 40}
+        self.request("/api/desk/submit", {**submission, "agent": {"model": "test-model", "harness": "codex"}}, token=claim["lease"]["token"])
+        run_id = (1 << 52) + 17
+        record = {"lemma_id": gap["id"], "run_id": run_id, "run_attempt": 1,
+                  "verdict": "ACCEPTED", "provider": "circleci",
+                  "manifest": {"rests_on": [{"module": gap["module"], "sha256": "b" * 64}], "defs": []}}
+        self.request("/api/verdict", record, signed=True, expected=409)
+        authorization = {**submission, "gap": gap["id"], "handle": "alice", "run_id": run_id,
+                         "statement_sha256": hashlib.sha256(gap["statement"].encode()).hexdigest()}
+        for _ in range(2):
+            self.request("/api/desk/authorize", authorization, signed=True)
+            self.request("/api/verdict", record, signed=True)
+        status = self.request("/api/status")
+        self.assertEqual(status["desk"]["rankings"]["proofs"], 1)
+        self.assertEqual(len(status["results"]), 1)
+        self.assertEqual(status["results"][0]["run_id"], run_id)
+
     def test_verification_history_pagination(self):
         api = "/api/"
         def publish(run, attempt):
