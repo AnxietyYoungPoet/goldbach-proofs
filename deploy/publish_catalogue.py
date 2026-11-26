@@ -18,6 +18,7 @@ STORE = Path("/opt/goldbach-catalogues")
 APP = Path("/opt/goldbach-web")
 CURRENT = STORE / "current"
 FILES = ("gaps.json", "problems.json")
+MISSING = object()
 
 
 def git(*args):
@@ -131,6 +132,31 @@ def jenkins_release(sha):
                  and run.get("conclusion") == "success"), None)
 
 
+def merge_catalogue(base, live, candidate, path):
+    if live == base or live == candidate:
+        return candidate
+    if candidate == base:
+        return live
+    values = (base, live, candidate)
+    if all(isinstance(value, dict) for value in values):
+        merged = {}
+        for key in dict.fromkeys((*candidate, *live, *base)):
+            value = merge_catalogue(base.get(key, MISSING), live.get(key, MISSING),
+                                    candidate.get(key, MISSING), f"{path}.{key}")
+            if value is not MISSING:
+                merged[key] = value
+        return merged
+    if path.endswith((".gaps", ".tracks")) and all(isinstance(value, list) for value in values):
+        indexed = []
+        for records in values:
+            by_id = {record["id"]: record for record in records}
+            if len(by_id) != len(records):
+                raise ValueError(f"Duplicate ID at {path}")
+            indexed.append(by_id)
+        return list(merge_catalogue(*indexed, path).values())
+    raise ValueError(f"Conflicting catalogue changes at {path}")
+
+
 def activate(sha, parent, pr, run):
     old = CURRENT.resolve(strict=True)
     with tempfile.TemporaryDirectory(dir=STORE) as tmp:
@@ -145,10 +171,8 @@ def activate(sha, parent, pr, run):
             elif live == original:
                 result = candidate
             else:
-                paths = [Path(tmp) / key for key in ("live", "original", "candidate")]
-                for f, data in zip(paths, (live, original, candidate)):
-                    f.write_bytes(data)
-                result = subprocess.check_output(["git", "merge-file", "-p", *paths])
+                merged = merge_catalogue(*(json.loads(data) for data in (original, live, candidate)), name)
+                result = (json.dumps(merged, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
             json.loads(result)
             (stage / name).write_bytes(result)
         history = json.loads((old / "history.json").read_bytes())
