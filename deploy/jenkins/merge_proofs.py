@@ -55,9 +55,9 @@ def git_blob(content):
 def verify_dependency(app, base, revision, path, expected=None):
     content = (base / path).read_bytes()
     if expected is not None and hashlib.sha256(content).hexdigest() != expected:
-        raise ValueError("A verified dependency changed in the Jenkins baseline")
+        raise ValueError(f"Verified dependency changed in the Jenkins baseline: {path}")
     if metadata(app, path, revision)["sha"] != git_blob(content):
-        raise ValueError("A verified dependency or pinned Lean input changed on main")
+        raise ValueError(f"Verified dependency or pinned Lean input changed on main: {path}")
 
 
 def manifest_hashes(record, target):
@@ -119,7 +119,8 @@ def merge(app, number, head, record, base, *, dry_run=False):
             or files[0]["status"] != "added"):
         raise SkipMerge("The pull request must add only the registered Lean file")
     content = proven_content(app, path, head, hashes.pop(module))
-    base_revision = pr["base"]["sha"]
+    # GitHub can keep the PR's base SHA at the historical branch point.
+    base_revision = app.request("GET", f"{REPO}/git/ref/heads/main")["object"]["sha"]
     for name in TRUST_FILES:
         verify_dependency(app, base, base_revision, "lean/" + name)
     for name, digest in hashes.items():
@@ -128,9 +129,10 @@ def merge(app, number, head, record, base, *, dry_run=False):
         return None, path, content
 
     latest = pull_request(app, number)
-    if (not current_head(latest, head) or latest["state"] != "open" or latest["draft"]
-            or latest["base"]["sha"] != base_revision):
+    if not current_head(latest, head) or latest["state"] != "open" or latest["draft"]:
         raise ValueError("The pull request changed before its merge")
+    if app.request("GET", f"{REPO}/git/ref/heads/main")["object"]["sha"] != base_revision:
+        raise ValueError("main advanced while verifying the merge base")
     result = app.request("PUT", f"{REPO}/pulls/{number}/merge",
                          {"sha": head, "merge_method": "squash"})
     if not result.get("merged") or not SHA.fullmatch(result.get("sha", "")):

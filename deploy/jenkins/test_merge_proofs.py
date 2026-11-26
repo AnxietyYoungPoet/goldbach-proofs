@@ -37,18 +37,22 @@ class MergeProofTests(unittest.TestCase):
 
     def test_merge_uses_verified_head_and_squash(self):
         app = Mock()
+        current_main = {"object": {"sha": "4" * 40}}
         app.request.side_effect = [[{"filename": self.file, "status": "added"}],
+                                   current_main, current_main,
                                    {"merged": True, "sha": self.merged}]
         # GitHub may still be computing mergeability. The SHA-bound merge endpoint
         # can decide after the worker has checked the files and dependency hashes.
         with patch("merge_proofs.pull_request", return_value=self.pr | {"mergeable": None}), \
-             patch("merge_proofs.verify_dependency"), \
+             patch("merge_proofs.verify_dependency") as dependency, \
              patch("merge_proofs.metadata", return_value={"sha": git_blob(self.proof)}), \
              patch("merge_proofs.proven_content", return_value=self.proof):
             self.assertEqual(merge(app, 55, self.head, self.record, self.base),
                              (self.merged, self.file, self.proof))
         app.request.assert_called_with("PUT", REPO + "/pulls/55/merge",
                                        {"sha": self.head, "merge_method": "squash"})
+        self.assertTrue(all(call.args[2] == current_main["object"]["sha"]
+                            for call in dependency.call_args_list))
 
     def test_changed_head_and_extra_files_never_merge(self):
         for pr, extra_files in ((self.pr | {"head": {"sha": self.merged}}, []),
