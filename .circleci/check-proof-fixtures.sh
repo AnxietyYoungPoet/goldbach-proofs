@@ -17,6 +17,10 @@ export PATH="$HOME/.elan/bin:$PATH"
 sudo useradd --system --create-home --shell /usr/sbin/nologin outsider
 export PNP_TC_BIN
 PNP_TC_BIN=$(cd lean && dirname "$(elan which lake)")
+# The VM image restricts traversal of the runner's home by default.
+# Expose only the directory traversal required by the locked compiler.
+chmod o+x "$HOME" "$HOME/.elan" "$HOME/.elan/toolchains" "$(dirname "$PNP_TC_BIN")" "$PNP_TC_BIN"
+sudo -u outsider "$PNP_TC_BIN/lake" --version
 export PNP_GITCONFIG="$PWD/.circleci/pilot-gitconfig"
 printf '[safe]\n\tdirectory = *\n' > "$PNP_GITCONFIG"
 export PNP_BUILD_LOGS="$work"
