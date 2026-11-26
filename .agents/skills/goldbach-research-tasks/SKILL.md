@@ -55,7 +55,7 @@ description: 为哥德巴赫研究台及分站自动盘点剩余困难命题，�
 
 ## 编辑研究台
 
-新增任务先按[分目录发布约定](../../../research/problems/README.md)放进所属研究台、路线的 tasks 目录。每个 ID 单独建文件。复用引理通过 depends_on 引用。运行 `python research/build_catalogue.py --write` 后一并提交生成清单。已发布任务和在审 PR 沿用原路径。以下字段和验证约定两种格式共用。
+新增任务先按[分目录发布约定](../../../research/problems/README.md)放进所属研究台、路线的 tasks 目录。每个 ID 单独建文件。数学依赖通过 `depends_on` 记录。需要直接调用已通过正式核验并合入 main 的社区引理时，另将实际模块名加入该任务的 `imports`，并核对 Jenkins 受信基线包含该目录规则和引理源文件。运行 `python research/build_catalogue.py --write` 后一并提交生成清单。已发布任务和在审 PR 沿用原路径。以下字段和验证约定两种格式共用。
 
 - 哥德巴赫主站使用 [gaps.json](../../../research/gaps.json) 中的 `gaps`、`tracks` 和 `feeds`。每道新题关联有效的 `track`、`program` 和适当的 `role`。主线数学方向改变时更新 [ROADMAP.md](../../../research/ROADMAP.md)，并核对中英文首页的路线摘要。
 - 分站使用 [problems.json](../../../research/problems.json) 对应 slug 下的 `gaps` 与 `roadmap`。在阶段的 `tasks` 中引用同一分站的题目 ID，并为阶段和任务填写中英文文本。只改阶段顺序、说明或引用时，可保留原有题目。

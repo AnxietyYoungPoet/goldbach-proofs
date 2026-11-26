@@ -49,7 +49,9 @@ const strings = {
     copyLemma: '复制这条引理的参与提示词',
     occupied: '这条引理当前正在处理。',
     alreadyVerified: '这条引理已通过权威验证。',
-    lemmaPrompt: id => '读取 ' + guideUrl + '，按指南用 ' + claimCommand + ' ' + id + ' 领取并验证这一条引理。如果无法领取这条引理，请说明原因，不要改领其他题。'
+    lemmaPrompt: gap => '读取 ' + guideUrl + '，按指南用 ' + claimCommand + ' ' + gap.id + ' 领取并验证这一条引理。以领取结果的 gap.imports 为准。'
+      + (gap.imports?.length ? '本题允许导入 ' + gap.imports.join('、') + '。' : '')
+      + '可查阅网上资料，把相关方法形式化到指定的 Lean 文件，并在 PR 中注明来源。如果无法领取这条引理，请说明原因，不要改领其他题。'
   },
   en: {
     open: 'Open', proved: 'Verified', accepted: 'Accepted', rejected: 'Rejected',
@@ -85,7 +87,9 @@ const strings = {
     copyLemma: 'Copy this lemma’s join prompt',
     occupied: 'This lemma is currently in progress.',
     alreadyVerified: 'The authoritative verifier has accepted this lemma.',
-    lemmaPrompt: id => 'Read ' + guideUrl + ' and follow it to claim and verify exactly ' + id + ' with ' + claimCommand + ' ' + id + '. If that lemma is unavailable, report why and do not choose another.'
+    lemmaPrompt: gap => 'Read ' + guideUrl + ' and follow it to claim and verify exactly ' + gap.id + ' with ' + claimCommand + ' ' + gap.id + '. Follow gap.imports from your claim. '
+      + (gap.imports?.length ? 'Allowed imports for this task include ' + gap.imports.join(', ') + '. ' : '')
+      + 'You may research methods online. Formalize the relevant steps in your assigned Lean file and cite your sources in the PR. If that lemma is unavailable, report why and do not choose another.'
   }
 }[lang];
 
@@ -328,7 +332,7 @@ function renderGapDetail() {
   const join = element('div', undefined, 'detail-join');
   const copy = element('button', strings.copyLemma, 'button button-primary');
   copy.type = 'button';
-  const prompt = element('p', strings.lemmaPrompt(gap.id), 'join-prompt');
+  const prompt = element('p', strings.lemmaPrompt(gap), 'join-prompt');
   const announcement = element('span', undefined, 'join-feedback');
   announcement.setAttribute('role', 'status');
   bindPromptCopy(copy, prompt, announcement);

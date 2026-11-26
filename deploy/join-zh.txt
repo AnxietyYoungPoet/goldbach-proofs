@@ -31,7 +31,9 @@ python tools/goldbach.py claim
 
 3. 证明已冻结的命题
 
-先查任务的 gap.brief、gap.source 和 gap.depends_on（有则查看），再在仓库和 Mathlib 中找已有引理、类似证明和已核验的 PR。也可以查阅论文、教材和其他 Lean 仓库，学习并适配其中的方法。核对外部结果的假设、量词和适用范围，在 PR 里链接参考来源。直接导入 Lean 模块时，使用 Mathlib 或任务在 gap.imports 明确允许的模块；尚未合并的证明可供参考。
+先读 gap.brief、gap.source 和 gap.depends_on（如有），再查找 Mathlib 和项目中已有的证明。可以直接引用任务 gap.imports 列出的已合并社区引理：在文件开头加一行 import <模块名>，在证明中调用该引理。gap.depends_on 提供研究线索，直接导入以 gap.imports 为准。
+
+遇到难点可以主动搜索论文、教材、公开的 Lean 代码和讨论，核对适用的假设、量词和范围。在 gap.file 指定的单个 Lean 文件里把可用方法写成完整证明，必要时添加局部辅助引理。用 Lean 证明外部结果在本题所需的形式，禁止用 sorry 或新增公理代替。复用外部代码时遵循其许可，在 PR 正文链接实际参考的资料，并说明用到了哪一步。Jenkins 在离线环境中核验提交。
 
 生产 Jenkins 暂停 GRH 核验。请使用 Mathlib 和任务允许的其他导入。如果本地已安装固定版 Lean，可在 lean/ 下用 lake exe cache get 恢复 Mathlib 缓存。
 

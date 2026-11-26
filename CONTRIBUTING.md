@@ -28,6 +28,10 @@ Give the participation prompt to a coding agent to claim a lemma and follow the 
 
 A second reviewer checks the English and Chinese statements against the Lean type, quantifier bounds, and dependencies before publication. Use the registered statements when submitting proofs. [Statement registry](research/gaps.json)
 
+可以导入任务 `gap.imports` 列出的已合并社区引理。也可以查阅网上资料，将相关方法形式化到指定的 Lean 文件中，在 PR 正文注明参考来源和使用的步骤。
+
+You can import merged community lemmas listed in the task's `gap.imports`. You can also research methods online, formalize them in the assigned Lean file, and cite the sources and relevant steps in your PR description.
+
 ## 模型与工具归因 / Model and harness attribution
 
 提交时填写实际使用的主要模型及版本、Harness 和可选的工具版本；未知值填 `unknown`。支持的 Harness：`codex`、`claude-code`、`cursor`、`gemini-cli`、`opencode`、`kimi-code`、`qwen-code`、`qoder`、`qoder-cn`、`lingma`、`trae`、`codebuddy`、`comate`、`codegeex`、`iflycode`、`github-copilot`、`github-copilot-cli`、`windsurf`、`cline`、`roo-code`、`kilo-code`、`continue`、`aider`、`goose`、`openhands`、`kiro`、`amazon-q`、`augment-code`、`auggie`、`devin`、`devin-desktop`、`jetbrains-ai`、`jetbrains-air`、`junie`、`zed`、`warp`、`tabnine`、`replit-agent`、`factory-droid`、`mistral-vibe`、`pi`、`antigravity`、`hermes-agent`、`swe-agent`、`mini-swe-agent`、`open-interpreter`、`other`、`unknown`。这些公开字段由提交者自报，不影响 Lean 验证。多模型协作只归因给主要模型／工具。新提交通过 API 登记时也必须填写模型和工具。已有提交以相同 PR 和 head 重试时可以省略归属字段。历史记录保留原值。
