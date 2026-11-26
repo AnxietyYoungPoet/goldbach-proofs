@@ -93,10 +93,14 @@ class CatalogueTests(unittest.TestCase):
             with self.subTest(gap=key):
                 self.assertIs(gaps[key].get("challenge_only"), True)
                 self.assertEqual(gaps[key].get("claims_closed", False), key in closed)
-        self.assertNotIn("frontier-deep-fourth-moment-conjecture", gaps)
+        retired = gaps["frontier-deep-fourth-moment-conjecture"]
+        self.assertIs(retired.get("challenge_only"), True)
+        self.assertIs(retired.get("claims_closed"), True)
+        self.assertEqual(retired["refutation"]["pr"], 2508)
         negation = gaps["deep-fourth-moment-refutation"]["statement"]
         self.assertTrue(negation.startswith("¬ (") and negation.endswith(")"))
-        frozen = hashlib.sha256(negation[3:-1].encode("utf-8")).hexdigest()
+        self.assertEqual(negation[3:-1], retired["statement"])
+        frozen = hashlib.sha256(retired["statement"].encode("utf-8")).hexdigest()
         self.assertEqual(frozen, "41dcb3eeed67239ec1493cf89db1dffea1df1fc0bd2453ca4bb75a641add1476")
 
     def test_new_route_labels_and_dependencies(self):

@@ -171,7 +171,7 @@ assert counts == [48, 33, 18, 4, 2] and not remaining
 
 ## 2026-11-26 · 第二批有限区间任务
 
-沿用 $C=4\cdot10^{18}$、$X(t)=\exp(\exp t)$ 和带重数的 $\Omega$。本批提出一段 $G_1$ 的完整见证、覆盖两个原型范围的 $G_{14}$ 与 $G_{47}$ 估计，以及无权陈氏计数中可单独扣减的素数平方项。[七条冻结任务](problems/goldbach/routes/finite-rfc-second/tasks)
+沿用 $C=4\cdot10^{18}$、$X(t)=\exp(\exp t)$ 和带重数的 $\Omega$。本批提出一段 $G_1$ 的完整见证、覆盖两个原型范围的 $G_{14}$ 与 $G_{47}$ 估计，以及陈氏候选中的平方余项与一个给定因子带的预算。[八条冻结任务](problems/goldbach/routes/finite-rfc-second/tasks)
 
 | 任务 | 验收范围与证明入口 |
 | --- | --- |
@@ -182,6 +182,7 @@ assert counts == [48, 33, 18, 4, 2] and not remaining
 | FR-8005 · `finite-rough-fourteen-fortyseven` | 对同一见证，$4\le n<X(3.8)$ 的全部偶数有 $\Omega(n-p)\le14$，整个 $4\le n<X(5)$ 有 $\Omega(n-p)\le47$。两段原有预算分别为 15 和 52。 |
 | FR-8006 · `finite-chen-square-reindex` | 在 $p+a^2=n$ 上按素数 $a\le\lfloor\sqrt n\rfloor$ 重排，右侧保留原权 $v(n-a^2)$。 |
 | FR-8007 · `finite-chen-square-numeric-loss` | 对所有 $n\ge C$，无权平方余项数至多 $10^{-6}n/\log^2 n$。与已公布陈氏下界比较时需同时满足其原起点 $n>T$。仍需控制余项为两个不同素数乘积的候选。 |
+| FR-8008 · `finite-chen-distinct-factor-band-cap` | 对固定 $n$、同一候选权 $w$，把 $n-p=rq$、$D<r\le E$、$r<q\le Q$ 的候选按较小素因子分开。用 $B$ 控制单项权，每个 $r$ 支付 $B\max(0,\min(Q,\lfloor n/r\rfloor)-r)$。要推出正性，完整平方自由半素数区间的总上界还须低于扣除平方后的同权下界。 |
 
 **素数见证与覆盖表。** 仓库附带仅用 Python 标准库的证书。小素数用试除，大素数给出 $q-1$ 的全部不同素因子和一个 Lucas 见证，再递归验素。64 行共用 12 个不同的大素数。运行 `python3 -B research/checkpoint/verify_rfc1_batch2.py` 可逐行复核见证、轮模覆盖和端点不等式。研究台的通过状态以相应任务的 Lean 裁决为准。[证书与核验程序](checkpoint/verify_rfc1_batch2.py)
 

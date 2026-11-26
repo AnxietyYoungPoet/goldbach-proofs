@@ -216,6 +216,7 @@ def research_status(desk=DESK, *, compact=False, board=False):
         **extra,
         "catalogue_revision": RELEASE_SHA,
         "gaps": gaps,
+        **({"tracks": GOLDBACH_CATALOGUE.get("tracks", [])} if desk is DESK else {}),
         "results": results,
         "desk": desk_status,
         "counts": {
@@ -294,6 +295,21 @@ def route_filters(slug, lang):
     )
 
 
+def goldbach_program_filters(lang):
+    zh = lang == "zh"
+    programs = (
+        ("foundation", "素数权重" if zh else "Prime weights"),
+        ("grh", "黎曼猜想与素数分布" if zh else "GRH & prime distribution"),
+        ("correlation", "二元加法相关" if zh else "Binary correlations"),
+        ("exceptions", "例外集合" if zh else "Exceptional sets"),
+    )
+    return "".join(
+        f'<button type="button" class="map-program-button" data-program="{key}" aria-pressed="false">'
+        f'<strong class="program-name">{title}</strong><span class="program-count">—</span></button>'
+        for key, title in programs
+    )
+
+
 def route_panels(slug, lang):
     zh = lang == "zh"
     sections = []
@@ -316,10 +332,21 @@ def route_panels(slug, lang):
 
 
 def goldbach_roadmap_page(page, lang):
+    # Catalogue order sets the two featured routes; the map contains the full catalogue.
     if RELEASE_SHA:
         page = page.replace("</head>", f'<meta name="catalogue-revision" content="{escape(RELEASE_SHA)}"></head>', 1)
-    return page.replace("<!-- catalogue filters -->", route_filters("goldbach", lang)).replace(
-        "<!-- catalogue roadmap -->", route_panels("goldbach", lang))
+    featured = GOLDBACH_CATALOGUE.get("tracks", [])[:2]
+    stages = []
+    for track in featured:
+        key = escape(track["id"])
+        title = escape(track["title"][lang])
+        summary = escape(track["description"][lang])
+        count = sum(g.get("track") == track["id"] for g in GAPS)
+        tasks = f"{count} 个子命题" if lang == "zh" else f"{count} proof tasks"
+        stages.append(f'<li><h3>{title}</h3><p>{summary}</p><a href="#route={key}">{tasks}</a></li>')
+    overview = '<ul class="roadmap topic-roadmap">' + "".join(stages) + '</ul>'
+    return page.replace("<!-- catalogue filters -->", goldbach_program_filters(lang)).replace(
+        "<!-- catalogue roadmap -->", overview)
 
 
 def problem_page(page, slug, lang):
@@ -745,10 +772,16 @@ class Handler(BaseHTTPRequestHandler):
                 nav.append(f'<a href="?lang={lang}&amp;end={min(end+20,len(entries))}">{"上一页" if zh else "Previous"}</a>')
             if start:
                 nav.append(f'<a href="?lang={lang}&amp;end={start}">{"下一页" if zh else "Next"}</a>')
+            def run_url(row):
+                run = int(row["run"])
+                if row.get("provider") == "circleci":
+                    return f"https://app.circleci.com/pipelines/github/CGandGameEngineLearner/goldbach-proofs/{run}"
+                return f"{repo}/actions/runs/{run}"
+
             rows = "".join(
                 f'<li><time>{escape(row["at"])}</time> · <a href="{repo}/pull/{int(row["pr"])}">'
                 f'{escape(row["title"])}</a> · {escape(row["actor"])} · '
-                f'<a href="{repo}/actions/runs/{int(row["run"])}">CI</a></li>'
+                f'<a href="{run_url(row)}">CI</a></li>'
                 for row in reversed(entries[start:end]))
             empty = "尚无自动发布记录。" if zh else "No automated releases yet."
             page = (f'<!doctype html><html lang="{"zh" if zh else "en"}"><meta charset="utf-8">'

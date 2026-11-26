@@ -227,10 +227,10 @@ class Desk:
             return error(400, "invalid_claim")
         if requested_gap is not None and requested_gap not in self.gaps:
             return error(404, "unknown_gap")
-        if requested_gap and self.gaps[requested_gap].get("claims_closed"):
-            return error(409, "claims_closed")
         if requested_gap and self.gaps[requested_gap].get("refutation"):
             return error(409, "refutation_" + self.gaps[requested_gap]["refutation"]["status"])
+        if requested_gap and self.gaps[requested_gap].get("claims_closed"):
+            return error(409, "claims_closed")
         if fleet is not None:
             match = re.fullmatch(r"v1\.([0-9]{1,12})\.[a-f0-9]{64}", fleet)
             if (not match or int(match[1]) <= now
