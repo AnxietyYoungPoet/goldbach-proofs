@@ -14,7 +14,7 @@ Mathematicians guide the research and review formal statements. Anyone can bring
 - [研究路线 / Research roadmap](research/ROADMAP.md)
 - [各分站命题清单 / Other problem registries](research/problems.json)
 - [待验证命题 / Published statements](research/gaps.json)
-- [权威验证 / Authoritative verification](.github/workflows/authoritative.yml)
+- [权威验证 / Authoritative verification](deploy/README.md#jenkins-生产-ci)
 - [网站源码与部署 / Website source and deployment](deploy/README.md)
 - [研究路线与命题发布技能](.agents/skills/goldbach-research-tasks/SKILL.md) · 调用 `$goldbach-research-tasks` 拆解、验证和发布任务
 - [部署更新技能 / Deployment skill](.agents/skills/goldbach-deploy/SKILL.md) · 在支持仓库技能的 Codex 中用 `$goldbach-deploy` 调用
