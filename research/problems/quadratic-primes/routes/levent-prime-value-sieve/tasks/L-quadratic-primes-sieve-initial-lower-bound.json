@@ -20,6 +20,7 @@
   ],
   "imports": [
     "Conjectures.QuadraticPrimes.SieveDivisorRemainders",
-    "Conjectures.QuadraticPrimes.SieveMobiusCount"
+    "Conjectures.QuadraticPrimes.SieveMobiusCount",
+    "Conjectures.QuadraticPrimes.SieveMertensDensity"
   ]
 }

@@ -1,0 +1,11 @@
+{
+  "id": "seventeen-square-frontier",
+  "title": {
+    "zh": "17 块装填的新上界",
+    "en": "Improve the seventeen-square upper bound"
+  },
+  "description": {
+    "zh": "搜索并严格验证一个比 Bidwell 公开构造更紧凑的布局。",
+    "en": "Search for and certify a layout tighter than Bidwell’s documented construction."
+  }
+}
