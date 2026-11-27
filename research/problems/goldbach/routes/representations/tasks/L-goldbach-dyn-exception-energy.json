@@ -1,6 +1,6 @@
 {
   "id": "L-goldbach-dyn-exception-energy",
-  "statement": "∀ (E : Finset ℕ) (r b : ℕ → ℝ) (L : ℝ), 0<L → (∀ n ∈ E, L ≤ b n) → ((E.filter (fun n => r n=0)).card:ℝ)*L^2 ≤ ∑ n ∈ E, (r n-b n)^2",
+  "statement": "∀ (E : Finset ℕ) (r b : ℕ → ℝ) (L : ℝ), 0 < L → (∀ n ∈ E, L ≤ b n) → ((E.filter (fun n => r n=0)).card:ℝ)*L^2 ≤ ∑ n ∈ E, (r n-b n)^2",
   "plain_statement": {
     "zh": "用局部预测的均方误差约束漏点数",
     "en": "Charge each missed endpoint to local prediction error"

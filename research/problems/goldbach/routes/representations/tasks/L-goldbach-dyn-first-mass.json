@@ -1,6 +1,6 @@
 {
   "id": "L-goldbach-dyn-first-mass",
-  "statement": "let E := fun X : ℕ => (Finset.Icc X (2*X)).filter (fun n => Even n); let P := fun X : ℕ => (Finset.Icc (Nat.sqrt X) (2*Nat.sqrt X)).filter Nat.Prime; let H := fun (X n : ℕ) => ((P X).filter (fun p => p ≤ n ∧ Nat.Prime (n-p))).card; let M := fun X : ℕ => Real.sqrt (X:ℝ) / (Real.log (X:ℝ))^2; ∃ c : ℝ, 0<c ∧ ∃ X₀ : ℕ, ∀ X ≥ X₀, c*(X:ℝ)*M X ≤ ∑ n ∈ E X, (H X n:ℝ)",
+  "statement": "let E := fun X : ℕ => (Finset.Icc X (2*X)).filter (fun n => Even n); let P := fun X : ℕ => (Finset.Icc (Nat.sqrt X) (2*Nat.sqrt X)).filter Nat.Prime; let H := fun (X n : ℕ) => ((P X).filter (fun p => p ≤ n ∧ Nat.Prime (n-p))).card; let M := fun X : ℕ => Real.sqrt (X:ℝ) / (Real.log (X:ℝ))^2; ∃ c : ℝ, 0 < c ∧ ∃ X₀ : ℕ, ∀ X ≥ X₀, c*(X:ℝ)*M X ≤ ∑ n ∈ E X, (H X n:ℝ)",
   "plain_statement": {
     "zh": "平方根步长窗口内的一阶矩下界",
     "en": "Lower-bound total arrivals with a square-root-scale first prime"

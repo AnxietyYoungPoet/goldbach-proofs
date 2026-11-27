@@ -1,6 +1,6 @@
 {
   "id": "L-goldbach-dyn-carry-split",
-  "statement": "let W := fun (A B : Finset ℕ) (n : ℕ) => ((A ×ˢ B).filter (fun t => t.1+t.2=n)).card; ∀ (m n : ℕ) (A B : Finset ℕ), n<m → (∀ a ∈ A, a<m) → (∀ b ∈ B, b<m) → ((A ×ˢ B).filter (fun t => (t.1+t.2)%m=n)).card = W A B n + W A B (n+m)",
+  "statement": "let W := fun (A B : Finset ℕ) (n : ℕ) => ((A ×ˢ B).filter (fun t => t.1+t.2=n)).card; ∀ (m n : ℕ) (A B : Finset ℕ), n < m → (∀ a ∈ A, a < m) → (∀ b ∈ B, b < m) → ((A ×ˢ B).filter (fun t => (t.1+t.2)%m=n)).card = W A B n + W A B (n+m)",
   "plain_statement": {
     "zh": "模图的两步路径精确分成无进位与进位两层",
     "en": "Split modular two-step paths into two exact carry layers"

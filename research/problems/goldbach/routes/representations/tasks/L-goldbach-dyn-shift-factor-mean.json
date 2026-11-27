@@ -1,6 +1,6 @@
 {
   "id": "L-goldbach-dyn-shift-factor-mean",
-  "statement": "let E := fun X : ℕ => (Finset.Icc X (2*X)).filter (fun n => Even n); let P := fun X : ℕ => (Finset.Icc (Nat.sqrt X) (2*Nat.sqrt X)).filter Nat.Prime; let H := fun (X n : ℕ) => ((P X).filter (fun p => p ≤ n ∧ Nat.Prime (n-p))).card; let S := fun d : ℕ => ∏ l ∈ d.primeFactors.filter (fun l => 2<l), (((l:ℝ)-1)/((l:ℝ)-2)); ∃ C : ℝ, 0<C ∧ ∃ X₀ : ℕ, ∀ X ≥ X₀, (∑ p ∈ P X, ∑ q ∈ (P X).filter (fun q => p<q), S (q-p)) ≤ C*((P X).card:ℝ)^2",
+  "statement": "let E := fun X : ℕ => (Finset.Icc X (2*X)).filter (fun n => Even n); let P := fun X : ℕ => (Finset.Icc (Nat.sqrt X) (2*Nat.sqrt X)).filter Nat.Prime; let H := fun (X n : ℕ) => ((P X).filter (fun p => p ≤ n ∧ Nat.Prime (n-p))).card; let S := fun d : ℕ => ∏ l ∈ d.primeFactors.filter (fun l => 2 < l), (((l:ℝ)-1)/((l:ℝ)-2)); ∃ C : ℝ, 0 < C ∧ ∃ X₀ : ℕ, ∀ X ≥ X₀, (∑ p ∈ P X, ∑ q ∈ (P X).filter (fun q => p < q), S (q-p)) ≤ C*((P X).card:ℝ)^2",
   "plain_statement": {
     "zh": "控制小素数对的位移奇异因子均值",
     "en": "Bound the mean singular weight over small prime pairs"

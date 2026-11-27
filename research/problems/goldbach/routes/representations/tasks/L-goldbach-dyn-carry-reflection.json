@@ -1,6 +1,6 @@
 {
   "id": "L-goldbach-dyn-carry-reflection",
-  "statement": "let W := fun (A B : Finset ℕ) (n : ℕ) => ((A ×ˢ B).filter (fun t => t.1+t.2=n)).card; ∀ (m n : ℕ) (A B : Finset ℕ), 2 ≤ m → n+2 ≤ m → (∀ a ∈ A, a<m) → (∀ b ∈ B, b<m) → W A B (n+m) = W (A.image (fun a => m-1-a)) (B.image (fun b => m-1-b)) (m-2-n)",
+  "statement": "let W := fun (A B : Finset ℕ) (n : ℕ) => ((A ×ˢ B).filter (fun t => t.1+t.2=n)).card; ∀ (m n : ℕ) (A B : Finset ℕ), 2 ≤ m → n+2 ≤ m → (∀ a ∈ A, a < m) → (∀ b ∈ B, b < m) → W A B (n+m) = W (A.image (fun a => m-1-a)) (B.image (fun b => m-1-b)) (m-2-n)",
   "plain_statement": {
     "zh": "把进位层反射成低端整数的路径计数",
     "en": "Reflect wrapped paths into a low-end integer count"

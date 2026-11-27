@@ -1,6 +1,6 @@
 {
   "id": "L-goldbach-dyn-surplus-certificate",
-  "statement": "let W := fun (A B : Finset ℕ) (n : ℕ) => ((A ×ˢ B).filter (fun t => t.1+t.2=n)).card; ∀ (m n : ℕ) (A B : Finset ℕ), n<m → (∀ a ∈ A, a<m) → (∀ b ∈ B, b<m) → min ((A.filter (fun a => n<a)).card) ((B.filter (fun b => n<b)).card) < ((A ×ˢ B).filter (fun t => (t.1+t.2)%m=n)).card → 0<W A B n",
+  "statement": "let W := fun (A B : Finset ℕ) (n : ℕ) => ((A ×ˢ B).filter (fun t => t.1+t.2=n)).card; ∀ (m n : ℕ) (A B : Finset ℕ), n < m → (∀ a ∈ A, a < m) → (∀ b ∈ B, b < m) → min ((A.filter (fun a => n < a)).card) ((B.filter (fun b => n < b)).card) < ((A ×ˢ B).filter (fun t => (t.1+t.2)%m=n)).card → 0 < W A B n",
   "plain_statement": {
     "zh": "模路径数超过伪命中预算时恢复整数命中",
     "en": "Certify an integer hit from a modular surplus"

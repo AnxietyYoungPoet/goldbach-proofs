@@ -1,6 +1,6 @@
 {
   "id": "L-goldbach-dyn-robust-arrivals",
-  "statement": "let E := fun X : ℕ => (Finset.Icc X (2*X)).filter (fun n => Even n); let P := fun X : ℕ => (Finset.Icc (Nat.sqrt X) (2*Nat.sqrt X)).filter Nat.Prime; let H := fun (X n : ℕ) => ((P X).filter (fun p => p ≤ n ∧ Nat.Prime (n-p))).card; let M := fun X : ℕ => Real.sqrt (X:ℝ) / (Real.log (X:ℝ))^2; ∃ η δ : ℝ, 0<η ∧ 0<δ ∧ ∃ X₀ : ℕ, ∀ X ≥ X₀, ∀ D : Finset ℕ, (D.card:ℝ) ≤ η*(X:ℝ)/Real.log (X:ℝ) → δ*(X:ℝ) ≤ (((E X).filter (fun n => ∃ p ∈ P X, p≤n ∧ Nat.Prime (n-p) ∧ n-p ∉ D)).card:ℝ)",
+  "statement": "let E := fun X : ℕ => (Finset.Icc X (2*X)).filter (fun n => Even n); let P := fun X : ℕ => (Finset.Icc (Nat.sqrt X) (2*Nat.sqrt X)).filter Nat.Prime; let H := fun (X n : ℕ) => ((P X).filter (fun p => p ≤ n ∧ Nat.Prime (n-p))).card; let M := fun X : ℕ => Real.sqrt (X:ℝ) / (Real.log (X:ℝ))^2; ∃ η δ : ℝ, 0 < η ∧ 0 < δ ∧ ∃ X₀ : ℕ, ∀ X ≥ X₀, ∀ D : Finset ℕ, (D.card:ℝ) ≤ η*(X:ℝ)/Real.log (X:ℝ) → δ*(X:ℝ) ≤ (((E X).filter (fun n => ∃ p ∈ P X, p≤n ∧ Nat.Prime (n-p) ∧ n-p ∉ D)).card:ℝ)",
   "plain_statement": {
     "zh": "探索猜想：删去一批大素数步长后仍有正比例命中",
     "en": "Conjecture: positive coverage survives adversarial long-step deletions"

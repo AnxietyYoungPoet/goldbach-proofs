@@ -70,7 +70,7 @@
     },
     {
       "id": "L-goldbach-dyn-carry-split",
-      "statement": "let W := fun (A B : Finset ℕ) (n : ℕ) => ((A ×ˢ B).filter (fun t => t.1+t.2=n)).card; ∀ (m n : ℕ) (A B : Finset ℕ), n<m → (∀ a ∈ A, a<m) → (∀ b ∈ B, b<m) → ((A ×ˢ B).filter (fun t => (t.1+t.2)%m=n)).card = W A B n + W A B (n+m)",
+      "statement": "let W := fun (A B : Finset ℕ) (n : ℕ) => ((A ×ˢ B).filter (fun t => t.1+t.2=n)).card; ∀ (m n : ℕ) (A B : Finset ℕ), n < m → (∀ a ∈ A, a < m) → (∀ b ∈ B, b < m) → ((A ×ˢ B).filter (fun t => (t.1+t.2)%m=n)).card = W A B n + W A B (n+m)",
       "plain_statement": {
         "zh": "模图的两步路径精确分成无进位与进位两层",
         "en": "Split modular two-step paths into two exact carry layers"
@@ -88,7 +88,7 @@
     },
     {
       "id": "L-goldbach-dyn-carry-reflection",
-      "statement": "let W := fun (A B : Finset ℕ) (n : ℕ) => ((A ×ˢ B).filter (fun t => t.1+t.2=n)).card; ∀ (m n : ℕ) (A B : Finset ℕ), 2 ≤ m → n+2 ≤ m → (∀ a ∈ A, a<m) → (∀ b ∈ B, b<m) → W A B (n+m) = W (A.image (fun a => m-1-a)) (B.image (fun b => m-1-b)) (m-2-n)",
+      "statement": "let W := fun (A B : Finset ℕ) (n : ℕ) => ((A ×ˢ B).filter (fun t => t.1+t.2=n)).card; ∀ (m n : ℕ) (A B : Finset ℕ), 2 ≤ m → n+2 ≤ m → (∀ a ∈ A, a < m) → (∀ b ∈ B, b < m) → W A B (n+m) = W (A.image (fun a => m-1-a)) (B.image (fun b => m-1-b)) (m-2-n)",
       "plain_statement": {
         "zh": "把进位层反射成低端整数的路径计数",
         "en": "Reflect wrapped paths into a low-end integer count"
@@ -106,7 +106,7 @@
     },
     {
       "id": "L-goldbach-dyn-carry-edge-budget",
-      "statement": "let W := fun (A B : Finset ℕ) (n : ℕ) => ((A ×ˢ B).filter (fun t => t.1+t.2=n)).card; ∀ (m n : ℕ) (A B : Finset ℕ), n<m → (∀ a ∈ A, a<m) → (∀ b ∈ B, b<m) → W A B (n+m) ≤ min ((A.filter (fun a => n<a)).card) ((B.filter (fun b => n<b)).card)",
+      "statement": "let W := fun (A B : Finset ℕ) (n : ℕ) => ((A ×ˢ B).filter (fun t => t.1+t.2=n)).card; ∀ (m n : ℕ) (A B : Finset ℕ), n < m → (∀ a ∈ A, a < m) → (∀ b ∈ B, b < m) → W A B (n+m) ≤ min ((A.filter (fun a => n < a)).card) ((B.filter (fun b => n < b)).card)",
       "plain_statement": {
         "zh": "用高端步长数限制伪命中的重数",
         "en": "Bound wrapped multiplicity by the smaller upper tail"
@@ -124,7 +124,7 @@
     },
     {
       "id": "L-goldbach-dyn-surplus-certificate",
-      "statement": "let W := fun (A B : Finset ℕ) (n : ℕ) => ((A ×ˢ B).filter (fun t => t.1+t.2=n)).card; ∀ (m n : ℕ) (A B : Finset ℕ), n<m → (∀ a ∈ A, a<m) → (∀ b ∈ B, b<m) → min ((A.filter (fun a => n<a)).card) ((B.filter (fun b => n<b)).card) < ((A ×ˢ B).filter (fun t => (t.1+t.2)%m=n)).card → 0<W A B n",
+      "statement": "let W := fun (A B : Finset ℕ) (n : ℕ) => ((A ×ˢ B).filter (fun t => t.1+t.2=n)).card; ∀ (m n : ℕ) (A B : Finset ℕ), n < m → (∀ a ∈ A, a < m) → (∀ b ∈ B, b < m) → min ((A.filter (fun a => n < a)).card) ((B.filter (fun b => n < b)).card) < ((A ×ˢ B).filter (fun t => (t.1+t.2)%m=n)).card → 0 < W A B n",
       "plain_statement": {
         "zh": "模路径数超过伪命中预算时恢复整数命中",
         "en": "Certify an integer hit from a modular surplus"
@@ -181,7 +181,7 @@
     },
     {
       "id": "L-goldbach-dyn-first-mass",
-      "statement": "let E := fun X : ℕ => (Finset.Icc X (2*X)).filter (fun n => Even n); let P := fun X : ℕ => (Finset.Icc (Nat.sqrt X) (2*Nat.sqrt X)).filter Nat.Prime; let H := fun (X n : ℕ) => ((P X).filter (fun p => p ≤ n ∧ Nat.Prime (n-p))).card; let M := fun X : ℕ => Real.sqrt (X:ℝ) / (Real.log (X:ℝ))^2; ∃ c : ℝ, 0<c ∧ ∃ X₀ : ℕ, ∀ X ≥ X₀, c*(X:ℝ)*M X ≤ ∑ n ∈ E X, (H X n:ℝ)",
+      "statement": "let E := fun X : ℕ => (Finset.Icc X (2*X)).filter (fun n => Even n); let P := fun X : ℕ => (Finset.Icc (Nat.sqrt X) (2*Nat.sqrt X)).filter Nat.Prime; let H := fun (X n : ℕ) => ((P X).filter (fun p => p ≤ n ∧ Nat.Prime (n-p))).card; let M := fun X : ℕ => Real.sqrt (X:ℝ) / (Real.log (X:ℝ))^2; ∃ c : ℝ, 0 < c ∧ ∃ X₀ : ℕ, ∀ X ≥ X₀, c*(X:ℝ)*M X ≤ ∑ n ∈ E X, (H X n:ℝ)",
       "plain_statement": {
         "zh": "平方根步长窗口内的一阶矩下界",
         "en": "Lower-bound total arrivals with a square-root-scale first prime"
@@ -219,7 +219,7 @@
     },
     {
       "id": "L-goldbach-dyn-shift-sieve",
-      "statement": "let E := fun X : ℕ => (Finset.Icc X (2*X)).filter (fun n => Even n); let P := fun X : ℕ => (Finset.Icc (Nat.sqrt X) (2*Nat.sqrt X)).filter Nat.Prime; let H := fun (X n : ℕ) => ((P X).filter (fun p => p ≤ n ∧ Nat.Prime (n-p))).card; let K := fun (X p q : ℕ) => ((E X).filter (fun n => p≤n ∧ q≤n ∧ Nat.Prime (n-p) ∧ Nat.Prime (n-q))).card; let S := fun d : ℕ => ∏ l ∈ d.primeFactors.filter (fun l => 2<l), (((l:ℝ)-1)/((l:ℝ)-2)); ∃ C : ℝ, 0<C ∧ ∃ X₀ : ℕ, ∀ X ≥ X₀, ∀ p ∈ P X, ∀ q ∈ P X, p<q → (K X p q:ℝ) ≤ C*(X:ℝ)*S (q-p)/(Real.log (X:ℝ))^2",
+      "statement": "let E := fun X : ℕ => (Finset.Icc X (2*X)).filter (fun n => Even n); let P := fun X : ℕ => (Finset.Icc (Nat.sqrt X) (2*Nat.sqrt X)).filter Nat.Prime; let H := fun (X n : ℕ) => ((P X).filter (fun p => p ≤ n ∧ Nat.Prime (n-p))).card; let K := fun (X p q : ℕ) => ((E X).filter (fun n => p≤n ∧ q≤n ∧ Nat.Prime (n-p) ∧ Nat.Prime (n-q))).card; let S := fun d : ℕ => ∏ l ∈ d.primeFactors.filter (fun l => 2 < l), (((l:ℝ)-1)/((l:ℝ)-2)); ∃ C : ℝ, 0 < C ∧ ∃ X₀ : ℕ, ∀ X ≥ X₀, ∀ p ∈ P X, ∀ q ∈ P X, p < q → (K X p q:ℝ) ≤ C*(X:ℝ)*S (q-p)/(Real.log (X:ℝ))^2",
       "plain_statement": {
         "zh": "统一控制两个小素数平移的共同邻点",
         "en": "Sieve the shared neighbors of two distinct small primes"
@@ -237,7 +237,7 @@
     },
     {
       "id": "L-goldbach-dyn-shift-factor-mean",
-      "statement": "let E := fun X : ℕ => (Finset.Icc X (2*X)).filter (fun n => Even n); let P := fun X : ℕ => (Finset.Icc (Nat.sqrt X) (2*Nat.sqrt X)).filter Nat.Prime; let H := fun (X n : ℕ) => ((P X).filter (fun p => p ≤ n ∧ Nat.Prime (n-p))).card; let S := fun d : ℕ => ∏ l ∈ d.primeFactors.filter (fun l => 2<l), (((l:ℝ)-1)/((l:ℝ)-2)); ∃ C : ℝ, 0<C ∧ ∃ X₀ : ℕ, ∀ X ≥ X₀, (∑ p ∈ P X, ∑ q ∈ (P X).filter (fun q => p<q), S (q-p)) ≤ C*((P X).card:ℝ)^2",
+      "statement": "let E := fun X : ℕ => (Finset.Icc X (2*X)).filter (fun n => Even n); let P := fun X : ℕ => (Finset.Icc (Nat.sqrt X) (2*Nat.sqrt X)).filter Nat.Prime; let H := fun (X n : ℕ) => ((P X).filter (fun p => p ≤ n ∧ Nat.Prime (n-p))).card; let S := fun d : ℕ => ∏ l ∈ d.primeFactors.filter (fun l => 2 < l), (((l:ℝ)-1)/((l:ℝ)-2)); ∃ C : ℝ, 0 < C ∧ ∃ X₀ : ℕ, ∀ X ≥ X₀, (∑ p ∈ P X, ∑ q ∈ (P X).filter (fun q => p < q), S (q-p)) ≤ C*((P X).card:ℝ)^2",
       "plain_statement": {
         "zh": "控制小素数对的位移奇异因子均值",
         "en": "Bound the mean singular weight over small prime pairs"
@@ -255,7 +255,7 @@
     },
     {
       "id": "L-goldbach-dyn-path-second-moment",
-      "statement": "let E := fun X : ℕ => (Finset.Icc X (2*X)).filter (fun n => Even n); let P := fun X : ℕ => (Finset.Icc (Nat.sqrt X) (2*Nat.sqrt X)).filter Nat.Prime; let H := fun (X n : ℕ) => ((P X).filter (fun p => p ≤ n ∧ Nat.Prime (n-p))).card; let M := fun X : ℕ => Real.sqrt (X:ℝ) / (Real.log (X:ℝ))^2; ∃ C : ℝ, 0<C ∧ ∃ X₀ : ℕ, ∀ X ≥ X₀, (∑ n ∈ E X, (H X n:ℝ)^2) ≤ C*(X:ℝ)*(M X)^2",
+      "statement": "let E := fun X : ℕ => (Finset.Icc X (2*X)).filter (fun n => Even n); let P := fun X : ℕ => (Finset.Icc (Nat.sqrt X) (2*Nat.sqrt X)).filter Nat.Prime; let H := fun (X n : ℕ) => ((P X).filter (fun p => p ≤ n ∧ Nat.Prime (n-p))).card; let M := fun X : ℕ => Real.sqrt (X:ℝ) / (Real.log (X:ℝ))^2; ∃ C : ℝ, 0 < C ∧ ∃ X₀ : ℕ, ∀ X ≥ X₀, (∑ n ∈ E X, (H X n:ℝ)^2) ≤ C*(X:ℝ)*(M X)^2",
       "plain_statement": {
         "zh": "平方根步长窗口内的路径二阶矩",
         "en": "Bound the square-root-window path second moment"
@@ -277,7 +277,7 @@
     },
     {
       "id": "L-goldbach-dyn-many-rich-targets",
-      "statement": "let E := fun X : ℕ => (Finset.Icc X (2*X)).filter (fun n => Even n); let P := fun X : ℕ => (Finset.Icc (Nat.sqrt X) (2*Nat.sqrt X)).filter Nat.Prime; let H := fun (X n : ℕ) => ((P X).filter (fun p => p ≤ n ∧ Nat.Prime (n-p))).card; let M := fun X : ℕ => Real.sqrt (X:ℝ) / (Real.log (X:ℝ))^2; ∃ c δ : ℝ, 0<c ∧ 0<δ ∧ ∃ X₀ : ℕ, ∀ X ≥ X₀, δ*(X:ℝ) ≤ (((E X).filter (fun n => c*M X ≤ (H X n:ℝ))).card:ℝ)",
+      "statement": "let E := fun X : ℕ => (Finset.Icc X (2*X)).filter (fun n => Even n); let P := fun X : ℕ => (Finset.Icc (Nat.sqrt X) (2*Nat.sqrt X)).filter Nat.Prime; let H := fun (X n : ℕ) => ((P X).filter (fun p => p ≤ n ∧ Nat.Prime (n-p))).card; let M := fun X : ℕ => Real.sqrt (X:ℝ) / (Real.log (X:ℝ))^2; ∃ c δ : ℝ, 0 < c ∧ 0 < δ ∧ ∃ X₀ : ℕ, ∀ X ≥ X₀, δ*(X:ℝ) ≤ (((E X).filter (fun n => c*M X ≤ (H X n:ℝ))).card:ℝ)",
       "plain_statement": {
         "zh": "正比例的偶数拥有许多小步长表示",
         "en": "Find a positive proportion of endpoints with many witnesses"
@@ -298,7 +298,7 @@
     },
     {
       "id": "L-goldbach-dyn-thin-window-exceptions",
-      "statement": "let E := fun X : ℕ => (Finset.Icc X (2*X)).filter (fun n => Even n); let P := fun X : ℕ => (Finset.Icc (Nat.sqrt X) (2*Nat.sqrt X)).filter Nat.Prime; let H := fun (X n : ℕ) => ((P X).filter (fun p => p ≤ n ∧ Nat.Prime (n-p))).card; ∀ ε : ℝ, 0<ε → ∃ X₀ : ℕ, ∀ X ≥ X₀, (((E X).filter (fun n => H X n=0)).card:ℝ) ≤ ε*(X:ℝ)",
+      "statement": "let E := fun X : ℕ => (Finset.Icc X (2*X)).filter (fun n => Even n); let P := fun X : ℕ => (Finset.Icc (Nat.sqrt X) (2*Nat.sqrt X)).filter Nat.Prime; let H := fun (X n : ℕ) => ((P X).filter (fun p => p ≤ n ∧ Nat.Prime (n-p))).card; ∀ ε : ℝ, 0 < ε → ∃ X₀ : ℕ, ∀ X ≥ X₀, (((E X).filter (fun n => H X n=0)).card:ℝ) ≤ ε*(X:ℝ)",
       "plain_statement": {
         "zh": "探索猜想：平方根步长窗口的漏点密度趋零",
         "en": "Conjecture: vanishing density of missed square-root-window targets"
@@ -334,7 +334,7 @@
     },
     {
       "id": "L-goldbach-dyn-robust-arrivals",
-      "statement": "let E := fun X : ℕ => (Finset.Icc X (2*X)).filter (fun n => Even n); let P := fun X : ℕ => (Finset.Icc (Nat.sqrt X) (2*Nat.sqrt X)).filter Nat.Prime; let H := fun (X n : ℕ) => ((P X).filter (fun p => p ≤ n ∧ Nat.Prime (n-p))).card; let M := fun X : ℕ => Real.sqrt (X:ℝ) / (Real.log (X:ℝ))^2; ∃ η δ : ℝ, 0<η ∧ 0<δ ∧ ∃ X₀ : ℕ, ∀ X ≥ X₀, ∀ D : Finset ℕ, (D.card:ℝ) ≤ η*(X:ℝ)/Real.log (X:ℝ) → δ*(X:ℝ) ≤ (((E X).filter (fun n => ∃ p ∈ P X, p≤n ∧ Nat.Prime (n-p) ∧ n-p ∉ D)).card:ℝ)",
+      "statement": "let E := fun X : ℕ => (Finset.Icc X (2*X)).filter (fun n => Even n); let P := fun X : ℕ => (Finset.Icc (Nat.sqrt X) (2*Nat.sqrt X)).filter Nat.Prime; let H := fun (X n : ℕ) => ((P X).filter (fun p => p ≤ n ∧ Nat.Prime (n-p))).card; let M := fun X : ℕ => Real.sqrt (X:ℝ) / (Real.log (X:ℝ))^2; ∃ η δ : ℝ, 0 < η ∧ 0 < δ ∧ ∃ X₀ : ℕ, ∀ X ≥ X₀, ∀ D : Finset ℕ, (D.card:ℝ) ≤ η*(X:ℝ)/Real.log (X:ℝ) → δ*(X:ℝ) ≤ (((E X).filter (fun n => ∃ p ∈ P X, p≤n ∧ Nat.Prime (n-p) ∧ n-p ∉ D)).card:ℝ)",
       "plain_statement": {
         "zh": "探索猜想：删去一批大素数步长后仍有正比例命中",
         "en": "Conjecture: positive coverage survives adversarial long-step deletions"
@@ -355,7 +355,7 @@
     },
     {
       "id": "L-goldbach-dyn-exception-energy",
-      "statement": "∀ (E : Finset ℕ) (r b : ℕ → ℝ) (L : ℝ), 0<L → (∀ n ∈ E, L ≤ b n) → ((E.filter (fun n => r n=0)).card:ℝ)*L^2 ≤ ∑ n ∈ E, (r n-b n)^2",
+      "statement": "∀ (E : Finset ℕ) (r b : ℕ → ℝ) (L : ℝ), 0 < L → (∀ n ∈ E, L ≤ b n) → ((E.filter (fun n => r n=0)).card:ℝ)*L^2 ≤ ∑ n ∈ E, (r n-b n)^2",
       "plain_statement": {
         "zh": "用局部预测的均方误差约束漏点数",
         "en": "Charge each missed endpoint to local prediction error"

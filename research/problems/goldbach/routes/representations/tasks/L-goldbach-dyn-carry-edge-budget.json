@@ -1,6 +1,6 @@
 {
   "id": "L-goldbach-dyn-carry-edge-budget",
-  "statement": "let W := fun (A B : Finset ℕ) (n : ℕ) => ((A ×ˢ B).filter (fun t => t.1+t.2=n)).card; ∀ (m n : ℕ) (A B : Finset ℕ), n<m → (∀ a ∈ A, a<m) → (∀ b ∈ B, b<m) → W A B (n+m) ≤ min ((A.filter (fun a => n<a)).card) ((B.filter (fun b => n<b)).card)",
+  "statement": "let W := fun (A B : Finset ℕ) (n : ℕ) => ((A ×ˢ B).filter (fun t => t.1+t.2=n)).card; ∀ (m n : ℕ) (A B : Finset ℕ), n < m → (∀ a ∈ A, a < m) → (∀ b ∈ B, b < m) → W A B (n+m) ≤ min ((A.filter (fun a => n < a)).card) ((B.filter (fun b => n < b)).card)",
   "plain_statement": {
     "zh": "用高端步长数限制伪命中的重数",
     "en": "Bound wrapped multiplicity by the smaller upper tail"
