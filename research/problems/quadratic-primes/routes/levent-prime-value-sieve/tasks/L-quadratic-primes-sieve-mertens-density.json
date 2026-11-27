@@ -18,5 +18,8 @@
     "L-quadratic-primes-sieve-split-harmonic",
     "L-quadratic-primes-levent-root-card-splitting"
   ],
-  "imports": []
+  "imports": [
+    "Conjectures.QuadraticPrimes.SieveEulerCorrection",
+    "PEqualNP.Outside.L_quadratic_primes_levent_root_card_splitting"
+  ]
 }

@@ -18,6 +18,8 @@
   "depends_on": [
     "L-twin-primes-sharp-window-contamination"
   ],
-  "imports": [],
+  "imports": [
+    "Conjectures.TwinPrimes.SharpWindowContamination"
+  ],
   "challenge_only": true
 }

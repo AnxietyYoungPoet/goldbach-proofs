@@ -23,6 +23,15 @@
     "L-twin-primes-prime-wheel-progression-budget",
     "L-twin-primes-wheel-marginal-counterexample"
   ],
-  "imports": [],
+  "imports": [
+    "PEqualNP.Outside.L_twin_primes_sifted_correlation",
+    "PEqualNP.Outside.L_twin_primes_cosine_plancherel",
+    "PEqualNP.Outside.L_twin_primes_theta_error_budget",
+    "Conjectures.TwinPrimes.WindowEndpointOverhang",
+    "Conjectures.TwinPrimes.RoughWindowPrimeExtraction",
+    "Conjectures.TwinPrimes.ShiftedCharacterJacobi",
+    "Conjectures.TwinPrimes.PrimeWheelProgressionBudget",
+    "Conjectures.TwinPrimes.WheelMarginalCounterexample"
+  ],
   "challenge_only": true
 }

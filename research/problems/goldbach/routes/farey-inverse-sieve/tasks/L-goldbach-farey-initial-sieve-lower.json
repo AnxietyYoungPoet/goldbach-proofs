@@ -19,6 +19,11 @@
     "L-goldbach-farey-sieve-terminal-floor",
     "L-goldbach-farey-sieve-cutoff-ratio"
   ],
-  "imports": [],
+  "imports": [
+    "Conjectures.Goldbach.FareyFullSieveRemainder",
+    "Conjectures.Goldbach.FareySieveRootTotal",
+    "Conjectures.Goldbach.FareySieveTerminalFloor",
+    "Conjectures.Goldbach.FareySieveCutoffRatio"
+  ],
   "challenge_only": true
 }

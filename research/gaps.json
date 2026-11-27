@@ -7465,7 +7465,9 @@
       "source": "https://www.goldbach.tech/?lemma=L-goldbach-arc-minor-saving#roadmap",
       "program": "correlation",
       "parallel": true,
-      "imports": [],
+      "imports": [
+        "PEqualNP.Outside.L_goldbach_minor_shift_window_budget"
+      ],
       "track": "minor-truncation",
       "role": "target",
       "challenge_only": true,
@@ -14398,7 +14400,10 @@
         "L-goldbach-farey-late-first-hit-factor-switch",
         "L-goldbach-farey-late-prime-square-loss"
       ],
-      "imports": [],
+      "imports": [
+        "Conjectures.Goldbach.FareyLateFirstHitFactorSwitch",
+        "Conjectures.Goldbach.FareyLatePrimeSquareLoss"
+      ],
       "challenge_only": true,
       "file": "lean/Conjectures/Goldbach/FareyFirstHitLate.lean",
       "module": "Conjectures.Goldbach.FareyFirstHitLate",
@@ -14546,7 +14551,12 @@
         "L-goldbach-farey-sieve-terminal-floor",
         "L-goldbach-farey-sieve-cutoff-ratio"
       ],
-      "imports": [],
+      "imports": [
+        "Conjectures.Goldbach.FareyFullSieveRemainder",
+        "Conjectures.Goldbach.FareySieveRootTotal",
+        "Conjectures.Goldbach.FareySieveTerminalFloor",
+        "Conjectures.Goldbach.FareySieveCutoffRatio"
+      ],
       "challenge_only": true,
       "file": "lean/Conjectures/Goldbach/FareyInitialSieveLower.lean",
       "module": "Conjectures.Goldbach.FareyInitialSieveLower",
@@ -15435,7 +15445,10 @@
         "L-goldbach-finite-weighted-sieve-remove-unit",
         "L-goldbach-finite-weighted-sieve-factor-cap"
       ],
-      "imports": [],
+      "imports": [
+        "Conjectures.Goldbach.FiniteWeightedSieveRemoveUnit",
+        "Conjectures.Goldbach.FiniteWeightedSieveFactorCap"
+      ],
       "challenge_only": true,
       "file": "lean/Conjectures/Goldbach/FiniteWeightedSieveTwoFactorDstar.lean",
       "module": "Conjectures.Goldbach.FiniteWeightedSieveTwoFactorDstar",

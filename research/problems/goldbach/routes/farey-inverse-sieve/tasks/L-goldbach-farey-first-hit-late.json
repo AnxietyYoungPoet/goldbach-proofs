@@ -17,6 +17,9 @@
     "L-goldbach-farey-late-first-hit-factor-switch",
     "L-goldbach-farey-late-prime-square-loss"
   ],
-  "imports": [],
+  "imports": [
+    "Conjectures.Goldbach.FareyLateFirstHitFactorSwitch",
+    "Conjectures.Goldbach.FareyLatePrimeSquareLoss"
+  ],
   "challenge_only": true
 }

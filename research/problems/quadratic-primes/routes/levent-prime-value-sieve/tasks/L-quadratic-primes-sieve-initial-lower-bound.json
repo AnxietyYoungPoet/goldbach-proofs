@@ -18,5 +18,8 @@
     "L-quadratic-primes-sieve-mertens-density",
     "L-quadratic-primes-sieve-mobius-count"
   ],
-  "imports": []
+  "imports": [
+    "Conjectures.QuadraticPrimes.SieveDivisorRemainders",
+    "Conjectures.QuadraticPrimes.SieveMobiusCount"
+  ]
 }

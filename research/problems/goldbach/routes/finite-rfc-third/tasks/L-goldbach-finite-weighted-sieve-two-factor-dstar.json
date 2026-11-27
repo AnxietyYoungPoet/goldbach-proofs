@@ -17,6 +17,9 @@
     "L-goldbach-finite-weighted-sieve-remove-unit",
     "L-goldbach-finite-weighted-sieve-factor-cap"
   ],
-  "imports": [],
+  "imports": [
+    "Conjectures.Goldbach.FiniteWeightedSieveRemoveUnit",
+    "Conjectures.Goldbach.FiniteWeightedSieveFactorCap"
+  ],
   "challenge_only": true
 }

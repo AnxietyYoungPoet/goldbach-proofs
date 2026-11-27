@@ -20,7 +20,11 @@
     "L-twin-primes-cosine-plancherel",
     "L-twin-primes-theta-error-budget"
   ],
-  "imports": [],
+  "imports": [
+    "PEqualNP.Outside.L_twin_primes_sifted_correlation",
+    "PEqualNP.Outside.L_twin_primes_cosine_plancherel",
+    "PEqualNP.Outside.L_twin_primes_theta_error_budget"
+  ],
   "challenge_only": true,
   "claims_closed": true
 }
