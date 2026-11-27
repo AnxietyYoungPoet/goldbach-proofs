@@ -71,8 +71,8 @@ theorem phase_cont : Continuous phase := by unfold phase; fun_prop
 
 theorem phase_half (t : ℝ) : phase (t+1/2) = -phase t := by
   unfold phase
-  rw [show 2*Real.pi*(t+1/2)=2*Real.pi*t+Real.pi by ring,Complex.ofReal_add,
-    add_mul,Complex.exp_add,Complex.exp_pi_mul_I,mul_neg_one]
+  rw [show 2*Real.pi*(t+1/2)=2*Real.pi*t+Real.pi by ring, Complex.ofReal_add]
+  rw [add_mul, Complex.exp_add,Complex.exp_pi_mul_I,mul_neg_one]
 
 def spectrum (n : ℕ) (t : ℝ) : ℂ := ∑ j ∈ range n, phase ((2:ℝ)^j*t)
 
