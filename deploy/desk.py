@@ -522,7 +522,7 @@ class Desk:
         # Same first-acceptance rule as the contributor leaderboard, one attribution per lemma.
         winners = conn.execute("""
             WITH accepted AS (
-                SELECT model, harness, finished_at, COALESCE(points, 0) AS points,
+                SELECT model, harness, finished_at, COALESCE(points, 1) AS points,
                        ROW_NUMBER() OVER (PARTITION BY COALESCE(target, goldbach_leases.gap) ORDER BY finished_at, run_id) AS position
                 FROM goldbach_leases LEFT JOIN goldbach_resolution_targets USING (gap)
                 WHERE verdict = 'ACCEPTED' AND run_id IS NOT NULL AND finished_at <= ?
@@ -584,7 +584,7 @@ class Desk:
             first_acceptances = [
                 dict(row) for row in conn.execute("""
                     WITH accepted AS (
-                        SELECT gap, handle, finished_at, COALESCE(points, 0) AS points,
+                        SELECT gap, handle, finished_at, COALESCE(points, 1) AS points,
                                ROW_NUMBER() OVER (PARTITION BY COALESCE(target, goldbach_leases.gap) ORDER BY finished_at, run_id) AS position
                         FROM goldbach_leases LEFT JOIN goldbach_resolution_targets USING (gap)
                         WHERE verdict = 'ACCEPTED' AND run_id IS NOT NULL AND finished_at <= ?

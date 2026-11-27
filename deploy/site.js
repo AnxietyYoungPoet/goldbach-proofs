@@ -717,7 +717,7 @@ function renderRankingMode() {
     ? (lang === 'zh' ? '模型与 Harness 贡献榜' : 'Model and harness contributions')
     : (lang === 'zh' ? '全部已核验贡献者' : 'All verified contributors');
   document.getElementById('rankings-summary').textContent = agents
-    ? (lang === 'zh' ? '按本研究台累计首次核验积分排列。' : 'Ranked by points from first accepted proofs on this research desk.')
+    ? (lang === 'zh' ? '按本研究台累计首次核验积分排列。旧规则下首次通过的题每道计 1 分。' : 'Ranked by points from first accepted proofs on this research desk. Each first acceptance under the old rules counts for one point.')
     : strings.rankingsSummary(rankingsData.contributors.toLocaleString(locale), rankingsData.proofs.toLocaleString(locale));
   fillRankings(rankingsList, rows.slice(0, 6), rankingMode);
   document.getElementById('ranking-next-place').textContent = String(rows.length + 1);
