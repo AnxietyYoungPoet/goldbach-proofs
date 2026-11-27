@@ -10505,24 +10505,24 @@
         ],
         "parallel": true,
         "challenge_only": false,
-        "module": "Conjectures.SquarePacking.SeventeenChargeAngleSymmetry",
-        "file": "lean/Conjectures/SquarePacking/SeventeenChargeAngleSymmetry.lean",
-        "route_source": "seventeen-square-frontier",
         "imports": [
           "PEqualNP.Outside.L_square_packing_rotation_norm",
           "PEqualNP.Outside.L_square_packing_rotated_square_containment"
-        ]
+        ],
+        "module": "Conjectures.SquarePacking.SeventeenChargeAngleSymmetry",
+        "file": "lean/Conjectures/SquarePacking/SeventeenChargeAngleSymmetry.lean",
+        "route_source": "seventeen-square-frontier"
       },
       {
         "id": "L-square-packing-seventeen-charge-cell-transfer",
-        "statement": "∀ (t u e h : ℝ), 0 ≤ e → |t| + e < h → |u-t| ≤ e → |u| < h",
+        "statement": "∀ (a b a' b' u v u' v' r d e : ℝ), 0 ≤ r → 0 ≤ d → 0 ≤ e → |a| ≤ 1 → |b| ≤ 1 → |a'-a| ≤ e → |b'-b| ≤ e → |u'| ≤ r → |v'| ≤ r → |u'-u| ≤ d → |v'-v| ≤ d → |a*u+b*v| + 2*(d+e*r) < 1/2 → |(-b)*u+a*v| + 2*(d+e*r) < 1/2 → |a'*u'+b'*v'| < 1/2 ∧ |(-b')*u'+a'*v'| < 1/2",
         "plain_statement": {
-          "zh": "证明带严格余量的一维投影在扰动后仍处于内部。",
-          "en": "Preserve strict interior projection membership under a certified perturbation."
+          "zh": "给定中心和方向的误差预算，把基准姿态的严格击中推广到整个姿态单元。",
+          "en": "Transfer a strict hit from a reference pose to a cell with bounded center and orientation errors."
         },
         "brief": {
-          "zh": "该结论可同时用于两个局部坐标，把一个投影误差预算转换成严格击中。",
-          "en": "Apply the estimate to both local projections to certify strict hits."
+          "zh": "拆开方向变化与中心变化，在两个局部坐标分别用三角不等式。误差余量可用于数值生成的覆盖证书。",
+          "en": "Separate orientation and position errors and bound both local coordinates by the triangle inequality."
         },
         "source": "https://squaremath.org/cases/17.html",
         "program": "correlation",
@@ -10534,12 +10534,12 @@
         ],
         "parallel": true,
         "challenge_only": false,
-        "module": "Conjectures.SquarePacking.SeventeenChargeCellTransfer",
-        "file": "lean/Conjectures/SquarePacking/SeventeenChargeCellTransfer.lean",
-        "route_source": "seventeen-square-frontier",
         "imports": [
           "PEqualNP.Outside.L_square_packing_axis_margin"
-        ]
+        ],
+        "module": "Conjectures.SquarePacking.SeventeenChargeCellTransfer",
+        "file": "lean/Conjectures/SquarePacking/SeventeenChargeCellTransfer.lean",
+        "route_source": "seventeen-square-frontier"
       },
       {
         "id": "L-square-packing-seventeen-lower-4661",
@@ -10673,12 +10673,12 @@
         ],
         "parallel": true,
         "challenge_only": false,
-        "module": "Conjectures.SquarePacking.SeventeenWeightedSites4661",
-        "file": "lean/Conjectures/SquarePacking/SeventeenWeightedSites4661.lean",
-        "route_source": "seventeen-square-frontier",
         "imports": [
           "PEqualNP.Outside.L_square_packing_rational_rotation"
-        ]
+        ],
+        "module": "Conjectures.SquarePacking.SeventeenWeightedSites4661",
+        "file": "lean/Conjectures/SquarePacking/SeventeenWeightedSites4661.lean",
+        "route_source": "seventeen-square-frontier"
       }
     ],
     "roadmap": [
@@ -11697,12 +11697,12 @@
       },
       {
         "en": [
-          "Improve the seventeen-square upper bound",
-          "Search for and certify a layout tighter than Bidwell’s documented construction."
+          "Seventeen-square packing bounds",
+          "Search for a tighter layout and use weighted piercing certificates to improve the replayed lower bound."
         ],
         "zh": [
-          "17 块装填的新上界",
-          "搜索并严格验证一个比 Bidwell 公开构造更紧凑的布局。"
+          "17 块装填的上下界",
+          "搜索更紧凑的可行布局，并尝试用加权击中点提高已复跑的下界。"
         ],
         "tasks": [
           {
@@ -11713,8 +11713,8 @@
           },
           {
             "id": "L-square-packing-seventeen-charge-cell-transfer",
-            "zh": "证明带严格余量的一维投影在扰动后仍处于内部。",
-            "en": "Preserve strict interior projection membership under a certified perturbation.",
+            "zh": "给定中心和方向的误差预算，把基准姿态的严格击中推广到整个姿态单元。",
+            "en": "Transfer a strict hit from a reference pose to a cell with bounded center and orientation errors.",
             "route_source": "seventeen-square-frontier"
           },
           {
