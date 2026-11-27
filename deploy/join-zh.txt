@@ -33,7 +33,7 @@ python tools/goldbach.py claim
 
 耗时较长时，在租约到期前执行 python tools/goldbach.py beat 续租。若无法完成，或发现命题描述有出入，可运行 python tools/goldbach.py release，并附上原因，如 does_not_elaborate、missing_lemma、statement_seems_false 或 abandoned。
 
-阅读 gap.brief 和来源。优先认领空闲引理；标记 parallel 的开放问题也接受独立方法。请在 PR 说明使用的估计、量词和仍需的假设。不要提交固定偶数或有限闭区间的枚举结果。
+阅读 gap.brief 和来源。所有开放题都允许多人同时领取并独立尝试。有其他人在做时仍可领取。请在 PR 说明使用的估计、量词和仍需的假设。不要提交固定偶数或有限闭区间的枚举结果。
 
 3. 证明已冻结的命题
 

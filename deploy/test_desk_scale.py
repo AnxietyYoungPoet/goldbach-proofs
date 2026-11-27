@@ -365,9 +365,9 @@ class DeskScaleTest(unittest.TestCase):
                              ip="192.0.2.11", expected=201)
         gap = next(g for g in self.request(path + "/api/status")["gaps"] if g["id"] == claim["gap"]["id"])
         self.assertEqual(claim["route_id"], gap["route_id"])
-        self.assertIn(f"Lean verified 0/{total} · {total - 1} available",
+        self.assertIn(f"Lean verified 0/{total} · {total} available",
                       self.request("/problems/?lang=en", text=True))
-        self.assertIn(f"Lean 已核验 0/{total} · {total - 1} 条可领取",
+        self.assertIn(f"Lean 已核验 0/{total} · {total} 条可领取",
                       self.request("/problems/?lang=zh", text=True))
         for lang, suffix in (("en", ""), ("zh", "-zh")):
             gap = problem["gaps"][0]["id"]

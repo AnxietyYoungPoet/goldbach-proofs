@@ -127,14 +127,13 @@ class DeskTests(unittest.TestCase):
         self.assertEqual(self.request("claim", {"handle": "Bob"})[1]["gap"]["id"], GAPS[1]["id"])
         self.assertEqual(self.status()["leaderboard"], [])
 
-    def test_only_one_participant_can_claim_the_same_gap_concurrently(self):
+    def test_participants_can_claim_the_same_gap_concurrently(self):
         def claim(i):
             return self.desk.claim({"handle": f"Agent{i}", "gap": GAPS[0]["id"]}, f"192.0.2.{i}", START)[0]
 
         with ThreadPoolExecutor(max_workers=8) as workers:
             outcomes = list(workers.map(claim, range(1, 17)))
-        self.assertEqual(outcomes.count(201), 1)
-        self.assertEqual(outcomes.count(409), 15)
+        self.assertEqual(outcomes, [201] * 16)
 
     def test_expiry_and_release(self):
         token = self.claim()
@@ -244,7 +243,7 @@ class DeskTests(unittest.TestCase):
         self.assertEqual(allocated, ["foundation", "coverage", "exceptions"])
 
     def test_parallel_leases_preserve_checking_and_release_unstarted_after_acceptance(self):
-        self.desk = Desk(self.db, [GAPS[0] | {"parallel": True}], SECRET)
+        self.desk = Desk(self.db, [GAPS[0] | {"parallel": False}], SECRET)
         tokens = [self.claim(handle) for handle in ("Alice", "Bob", "Carol")]
         for i, token in enumerate(tokens):
             self.assertEqual(self.submit(token, pr=8+i)[0], 200)

@@ -140,7 +140,7 @@ def error(status, code):
 class Desk:
     def __init__(self, db_path, gaps, secret, openings=None):
         self.db_path = db_path
-        self.gaps = {gap["id"]: gap for gap in gaps}
+        self.gaps = {gap["id"]: {**gap, "parallel": True} for gap in gaps}
         self.statement_hashes = {
             gap_id: hashlib.sha256(gap["statement"].encode("utf-8")).hexdigest()
             for gap_id, gap in self.gaps.items()

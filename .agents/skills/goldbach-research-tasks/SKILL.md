@@ -59,8 +59,14 @@ description: 为哥德巴赫研究台及分站自动盘点剩余困难命题，�
 
 - 哥德巴赫主站使用 [gaps.json](../../../research/gaps.json) 中的 `gaps`、`tracks` 和 `feeds`。每道新题关联有效的 `track`、`program` 和适当的 `role`。主线数学方向改变时更新 [ROADMAP.md](../../../research/ROADMAP.md)，并核对中英文首页的路线摘要。
 - 分站使用 [problems.json](../../../research/problems.json) 对应 slug 下的 `gaps` 与 `roadmap`。在阶段的 `tasks` 中引用同一分站的题目 ID，并为阶段和任务填写中英文文本。只改阶段顺序、说明或引用时，可保留原有题目。
-- 遵循同分支相邻记录的字段和 [目录测试](../../../research/test_catalogue.py)。新任务 `L-goldbach-example` 对应模块 `Conjectures.Goldbach.Example`、文件 `lean/Conjectures/Goldbach/Example.lean`。任务生成器派生新任务的 `module` 和 `file`。全站 ID、模块名和文件路径须唯一。填写完整 `statement`、两种语言的 `plain_statement` 与 `brief`、可核对的 `source`，按实际情况设置 `parallel`。使用项目允许的导入。
+- 遵循同分支相邻记录的字段和 [目录测试](../../../research/test_catalogue.py)。新任务 `L-goldbach-example` 对应模块 `Conjectures.Goldbach.Example`、文件 `lean/Conjectures/Goldbach/Example.lean`。任务生成器派生新任务的 `module` 和 `file`。全站 ID、模块名和文件路径须唯一。填写完整 `statement`、两种语言的 `plain_statement` 与 `brief`、可核对的 `source`，所有新任务填写 `"parallel": true`。使用项目允许的导入。
 - 既有领取记录绑定声明字节的 SHA-256。扩充目录时对比基线，核对旧题 ID 和声明。修正改变数学含义的已发布命题时使用新 ID，在路线中解释替代关系并处理旧任务的在途领取和历史记录。仅重写路线说明不需要换 ID。
+
+## 并行领取与积分
+
+所有开放命题都允许不同参与者同时领取并独立提交。有在途尝试时仍可领取。发布前核对新任务源包含 `"parallel": true`，发布后核对状态接口的 `gaps[].parallel`。
+
+积分以服务器登记提交时的分值为准，归首个通过权威 Lean 核验的解决结果。已登记的证伪和原题证明共享一次奖励。题单和 PR 说明应指引参与者优先解决高分题。
 
 ## 新版路线图的挂载与验收
 
