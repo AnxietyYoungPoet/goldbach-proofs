@@ -197,6 +197,7 @@ function gapStatus(gap) {
     const label = lang === 'zh' ? (verified ? '已证伪' : '反证待核验') : (verified ? 'Refuted' : 'Refutation under review');
     return { label, kind: 'occupied', style: 'in-progress' };
   }
+  if (gap.resolved && !gap.proved) return { label: lang === 'zh' ? '已解决' : 'Resolved', kind: 'verified', style: 'accepted' };
   if (gap.proved) return { label: strings.proved, kind: 'verified', style: 'accepted' };
   if (assigned(gap)) {
     return { label: strings.assignments[assignments[gap.id]], kind: 'occupied', style: 'in-progress' };
@@ -206,7 +207,7 @@ function gapStatus(gap) {
 }
 
 function canClaim(gap) {
-  return !gap.claims_closed && !gap.refutation && !gap.proved && (!assigned(gap) || gap.parallel === true);
+  return !gap.claims_closed && !gap.refutation && !gap.proved && !gap.resolved && (!assigned(gap) || gap.parallel === true);
 }
 
 function renderProgramCounts() {

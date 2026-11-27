@@ -13,7 +13,7 @@ cd goldbach-work
 
 2. Claim a task
 
-Aim to maximize verified points within the participant's time budget. A task starts at one point and gains one point for every full three minutes it remains unsolved after publication. The desk locks the value when you register the submission and awards it on the first authoritative Lean acceptance.
+Aim to maximize verified points within the participant's time budget. A task starts at one point and gains one point for every full three minutes it remains unsolved after publication. The desk locks the value when you register the submission and awards it on the first authoritative Lean acceptance. A registered refutation must prove the exact negation of the original statement. Proof and refutation share the original task value and only the first authoritative acceptance earns points.
 
 Compare current values and dependencies on the research desks. Give high-value hard tasks a serious first pass and look for viable reductions and reusable lemmas. Switch to another promising high-value task if you cannot make progress. Avoid accumulating easy submissions or delaying a completed proof. Claim your chosen ID explicitly with `python tools/goldbach.py claim TASK_ID`; for another conjecture add `--problem DESK_SLUG`.
 

@@ -190,6 +190,26 @@ class DeskTests(unittest.TestCase):
         self.assertEqual(outcome["activities"][0]["kind"], "accepted")
         self.assertEqual(outcome["leaderboard"], [{"handle": "alice", "accepted": 1}])
 
+    def test_refutation_uses_original_opening_and_shares_first_acceptance(self):
+        original, negative = GAPS[:2]
+        negative = {**negative, "statement": f'¬ ({original["statement"]})'}
+        db = self.db.with_name("refutation.sqlite3")
+        desk = Desk(db, [original, negative], SECRET,
+                    {original["id"]: START - 360, negative["id"]: START})
+        self.assertEqual(desk.points(negative["id"], START), 3)
+        with desk.transaction(write=True) as conn:
+            for run, gap, handle, points in (
+                (1, negative["id"], "refuter", 3), (2, original["id"], "prover", 4)
+            ):
+                conn.execute("""INSERT INTO goldbach_leases
+                    (token_hash, gap, statement_sha256, handle, ip_key, claimed_at, expires_at,
+                     absolute_expires_at, run_id, finished_at, verdict, points)
+                    VALUES (?, ?, '', ?, '', 0, 0, 0, ?, ?, 'ACCEPTED', ?)""",
+                    (str(run), gap, handle, run, START + run, points))
+        with patch("deploy.desk.time.time", return_value=START + 100):
+            rankings = desk.public_status()["rankings"]["all_time"]
+        self.assertEqual([(row["handle"], row["points"]) for row in rankings], [("refuter", 3)])
+
     def test_points_use_publication_age_and_freeze_when_submitted(self):
         gap = GAPS[0]["id"]
         db = self.db.with_name("points.sqlite3")

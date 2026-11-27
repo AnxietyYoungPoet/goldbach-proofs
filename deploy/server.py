@@ -291,12 +291,15 @@ def research_status(desk=DESK, *, compact=False, board=False):
                     desk.annotate_verdicts(results, conn)
                 desk.annotate_verdicts([result for result, _ in latest.values()], conn)
 
+    resolved = {desk.refutation_targets.get(gap, gap) for gap, (_, proved) in latest.items() if proved}
     gaps = []
     now = int(time.time())
     for gap in desk.gaps.values():
         result, proved = latest.get(gap["id"], (None, False))
-        points = None if proved or gap.get("refutation") else desk.points(gap["id"], now)
+        target = desk.refutation_targets.get(gap["id"], gap["id"])
+        points = None if target in resolved or gap.get("refutation") else desk.points(gap["id"], now)
         gaps.append({**gap, "latest": result, "proved": proved, "points": points,
+                     "resolved": target in resolved,
                      "route_id": TASK_ROUTE[gap["id"]]})
     accepted = sum(gap["proved"] for gap in gaps)
     desk_status = desk.public_status()
@@ -363,7 +366,7 @@ def status_body(desk, web_view, board=False, compress=False, delta=False):
                 return cached[1]
         status = research_status(desk, compact=web_view, board=board)
         if delta:
-            status["gaps"] = [{k: gap[k] for k in ("id", "latest", "proved", "points")} for gap in status["gaps"]]
+            status["gaps"] = [{k: gap[k] for k in ("id", "latest", "proved", "points", "resolved")} for gap in status["gaps"]]
             status.pop("tracks", None)
         body = json.dumps(status, ensure_ascii=False, separators=(",", ":")).encode()
         if compress:

@@ -145,6 +145,16 @@ class Desk:
             gap_id: hashlib.sha256(gap["statement"].encode("utf-8")).hexdigest()
             for gap_id, gap in self.gaps.items()
         }
+        statements = {}
+        for gap_id, gap in self.gaps.items():
+            statements.setdefault(gap["statement"], []).append(gap_id)
+        self.refutation_targets = {}
+        for gap_id, gap in self.gaps.items():
+            statement = gap["statement"]
+            if statement.startswith("¬ (") and statement.endswith(")"):
+                targets = statements.get(statement[3:-1], [])
+                if len(targets) == 1:
+                    self.refutation_targets[gap_id] = targets[0]
         self.secret = secret
         with closing(sqlite3.connect(db_path)) as conn:
             conn.execute("PRAGMA journal_mode=WAL")
@@ -191,11 +201,16 @@ class Desk:
             now = int(time.time())
             conn.executemany("INSERT OR IGNORE INTO goldbach_task_openings VALUES (?, ?)",
                              [(gap, min(now, (openings or {}).get(gap, now))) for gap in self.gaps])
+            conn.execute("""CREATE TABLE IF NOT EXISTS goldbach_resolution_targets (
+                gap TEXT PRIMARY KEY, target TEXT NOT NULL
+            )""")
+            conn.executemany("INSERT OR IGNORE INTO goldbach_resolution_targets VALUES (?, ?)",
+                             self.refutation_targets.items())
             conn.commit()
             self.openings = dict(conn.execute("SELECT gap, opened_at FROM goldbach_task_openings"))
 
     def points(self, gap, now):
-        return 1 + max(0, now - self.openings[gap]) // 180
+        return 1 + max(0, now - self.openings[self.refutation_targets.get(gap, gap)]) // 180
 
     @contextmanager
     def transaction(self, write=False):
@@ -224,6 +239,10 @@ class Desk:
                 WHERE json_extract(CAST(body AS TEXT), '$.verdict') = 'ACCEPTED'
             """)
         }
+
+    def resolved_gaps(self, conn):
+        resolved = {self.refutation_targets.get(gap, gap) for gap in self.proved_gaps(conn)}
+        return resolved | {gap for gap, target in self.refutation_targets.items() if target in resolved}
 
     @staticmethod
     def lease_times(lease):
@@ -272,7 +291,7 @@ class Desk:
                 return error(429, "network_claim_limit")
 
             load = Counter(lease["gap"] for lease in active)
-            proved = self.proved_gaps(conn)
+            proved = self.resolved_gaps(conn)
             candidates = ((key for key, gap in self.gaps.items() if not gap.get("challenge_only") and not gap.get("claims_closed") and not gap.get("refutation"))
                           if requested_gap is None else (requested_gap,))
             if fleet is None and owned:
@@ -404,7 +423,7 @@ class Desk:
                 return 200, {"authorized": True}
             if lease["run_id"] is not None or lease["expires_at"] <= now:
                 return error(409, "submission_unavailable")
-            if gap in self.proved_gaps(conn):
+            if gap in self.resolved_gaps(conn):
                 return error(409, "gap_already_proved")
             if conn.execute("SELECT 1 FROM goldbach_leases WHERE run_id = ?", (run_id,)).fetchone():
                 return error(409, "run_already_authorized")
@@ -493,8 +512,8 @@ class Desk:
         winners = conn.execute("""
             WITH accepted AS (
                 SELECT model, harness, finished_at, COALESCE(points, 0) AS points,
-                       ROW_NUMBER() OVER (PARTITION BY gap ORDER BY finished_at, run_id) AS position
-                FROM goldbach_leases
+                       ROW_NUMBER() OVER (PARTITION BY COALESCE(target, goldbach_leases.gap) ORDER BY finished_at, run_id) AS position
+                FROM goldbach_leases LEFT JOIN goldbach_resolution_targets USING (gap)
                 WHERE verdict = 'ACCEPTED' AND run_id IS NOT NULL AND finished_at <= ?
             )
             SELECT model, harness, points FROM accepted WHERE position = 1
@@ -555,8 +574,8 @@ class Desk:
                 dict(row) for row in conn.execute("""
                     WITH accepted AS (
                         SELECT gap, handle, finished_at, COALESCE(points, 0) AS points,
-                               ROW_NUMBER() OVER (PARTITION BY gap ORDER BY finished_at, run_id) AS position
-                        FROM goldbach_leases
+                               ROW_NUMBER() OVER (PARTITION BY COALESCE(target, goldbach_leases.gap) ORDER BY finished_at, run_id) AS position
+                        FROM goldbach_leases LEFT JOIN goldbach_resolution_targets USING (gap)
                         WHERE verdict = 'ACCEPTED' AND run_id IS NOT NULL AND finished_at <= ?
                     )
                     SELECT handle, COUNT(*) AS accepted, SUM(points) AS points,
