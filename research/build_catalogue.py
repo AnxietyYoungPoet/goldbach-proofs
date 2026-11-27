@@ -139,7 +139,7 @@ def build(root):
     return {"gaps.json": gold, "problems.json": others}
 
 
-def register_community_imports(root, catalogue):
+def register_community_imports(root, catalogue, *, proof_available=None):
     """Persist available direct dependencies without changing frozen statements."""
     gaps = catalogue["gaps.json"]["gaps"] + [
         gap for desk in catalogue["problems.json"].values() for gap in desk["gaps"]
@@ -150,7 +150,9 @@ def register_community_imports(root, catalogue):
         module = gap.get("module", "")
         file = f"lean/{module.replace('.', '/')}.lean"
         proof = root.parent / file
-        if COMMUNITY_PROOF.fullmatch(module) and gap.get("file") == file and proof.is_file() and not proof.is_symlink():
+        exists = (proof.is_file() and not proof.is_symlink() if proof_available is None
+                  else proof_available(file))
+        if COMMUNITY_PROOF.fullmatch(module) and gap.get("file") == file and exists:
             available[gap["id"]] = module
     for gap in gaps:
         if gap["id"] in available:
