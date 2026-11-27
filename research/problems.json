@@ -10485,6 +10485,89 @@
         ]
       },
       {
+        "id": "L-square-packing-seventeen-charge-angle-symmetry",
+        "statement": "let inside := fun (x y a b X Y : ℝ) => |a*(X-x)+b*(Y-y)| < 1/2 ∧ |(-b)*(X-x)+a*(Y-y)| < 1/2; ∀ (k q : ℕ) (X Y : Fin k → ℚ) (w : Fin k → ℕ), (∀ x y a b : ℝ, 0 ≤ b → b ≤ a → (a ^ 2 + b ^ 2 = 1 ∧ |a| + |b| ≤ 2*x ∧ |a| + |b| ≤ 2*((4661/1000:ℝ)-x) ∧ |a| + |b| ≤ 2*y ∧ |a| + |b| ≤ 2*((4661/1000:ℝ)-y)) → q ≤ (∑ j : Fin k, (if inside x y a b (X j) (Y j) then w j else 0))) → ∀ x y a b : ℝ, (a ^ 2 + b ^ 2 = 1 ∧ |a| + |b| ≤ 2*x ∧ |a| + |b| ≤ 2*((4661/1000:ℝ)-x) ∧ |a| + |b| ≤ 2*y ∧ |a| + |b| ≤ 2*((4661/1000:ℝ)-y)) → q ≤ (∑ j : Fin k, (if inside x y a b (X j) (Y j) then w j else 0))",
+        "plain_statement": {
+          "zh": "把单块的权重核验缩减到 0 至 45 度。",
+          "en": "Reduce single-square charge verification to orientations between 0 and 45 degrees."
+        },
+        "brief": {
+          "zh": "改变正方形局部坐标的符号或顺序，保持每个见证点的内部归属。",
+          "en": "Use sign changes and swaps of the local coordinates to preserve each site's interior membership."
+        },
+        "source": "https://squaremath.org/cases/17.html",
+        "program": "correlation",
+        "track": "seventeen-square-frontier",
+        "role": "input",
+        "depends_on": [
+          "L-square-packing-rotation-norm",
+          "L-square-packing-rotated-square-containment"
+        ],
+        "parallel": true,
+        "challenge_only": false,
+        "module": "Conjectures.SquarePacking.SeventeenChargeAngleSymmetry",
+        "file": "lean/Conjectures/SquarePacking/SeventeenChargeAngleSymmetry.lean",
+        "route_source": "seventeen-square-frontier",
+        "imports": [
+          "PEqualNP.Outside.L_square_packing_rotation_norm",
+          "PEqualNP.Outside.L_square_packing_rotated_square_containment"
+        ]
+      },
+      {
+        "id": "L-square-packing-seventeen-charge-cell-transfer",
+        "statement": "∀ (t u e h : ℝ), 0 ≤ e → |t| + e < h → |u-t| ≤ e → |u| < h",
+        "plain_statement": {
+          "zh": "证明带严格余量的一维投影在扰动后仍处于内部。",
+          "en": "Preserve strict interior projection membership under a certified perturbation."
+        },
+        "brief": {
+          "zh": "该结论可同时用于两个局部坐标，把一个投影误差预算转换成严格击中。",
+          "en": "Apply the estimate to both local projections to certify strict hits."
+        },
+        "source": "https://squaremath.org/cases/17.html",
+        "program": "correlation",
+        "track": "seventeen-square-frontier",
+        "role": "input",
+        "depends_on": [
+          "L-square-packing-projection-radius",
+          "L-square-packing-axis-margin"
+        ],
+        "parallel": true,
+        "challenge_only": false,
+        "module": "Conjectures.SquarePacking.SeventeenChargeCellTransfer",
+        "file": "lean/Conjectures/SquarePacking/SeventeenChargeCellTransfer.lean",
+        "route_source": "seventeen-square-frontier",
+        "imports": [
+          "PEqualNP.Outside.L_square_packing_axis_margin"
+        ]
+      },
+      {
+        "id": "L-square-packing-seventeen-lower-4661",
+        "statement": "let inside := fun (x y a b X Y : ℝ) => |a*(X-x)+b*(Y-y)| < 1/2 ∧ |(-b)*(X-x)+a*(Y-y)| < 1/2; let fits := fun (n : ℕ) (s : ℝ) => 0 ≤ s ∧ ∃ x y a b : Fin n → ℝ, (∀ i, a i ^ 2 + b i ^ 2 = 1 ∧ |a i| + |b i| ≤ 2*x i ∧ |a i| + |b i| ≤ 2*(s-x i) ∧ |a i| + |b i| ≤ 2*y i ∧ |a i| + |b i| ≤ 2*(s-y i)) ∧ (∀ i j, i ≠ j → ∀ X Y : ℝ, inside (x i) (y i) (a i) (b i) X Y → ¬ inside (x j) (y j) (a j) (b j) X Y); ¬ fits 17 (4661/1000)",
+        "plain_statement": {
+          "zh": "证明边长 4.661 的正方形无法容纳 17 个可自由旋转的单位正方形。",
+          "en": "Rule out an unrestricted seventeen-square packing at side 4.661."
+        },
+        "brief": {
+          "zh": "用击中点证书与权重预算，或给出独立的全角度排除。对更小边长可沿用同一装填到 4.661 的外框。",
+          "en": "Use the weighted certificate and budget, or give an independent all-angle exclusion. A smaller packing would also fit at side 4.661."
+        },
+        "source": "https://squaremath.org/cases/17.html",
+        "program": "correlation",
+        "track": "seventeen-square-frontier",
+        "role": "target",
+        "depends_on": [
+          "L-square-packing-seventeen-weighted-sites-4661",
+          "L-square-packing-seventeen-weighted-bridge-4661"
+        ],
+        "parallel": true,
+        "challenge_only": true,
+        "module": "Conjectures.SquarePacking.SeventeenLower4661",
+        "file": "lean/Conjectures/SquarePacking/SeventeenLower4661.lean",
+        "route_source": "seventeen-square-frontier",
+        "imports": []
+      },
+      {
         "id": "L-square-packing-seventeen-upper-46755",
         "statement": "let inside := fun (x y a b X Y : ℝ) => |a*(X-x)+b*(Y-y)| < 1/2 ∧ |(-b)*(X-x)+a*(Y-y)| < 1/2; let fits := fun (n : ℕ) (s : ℝ) => 0 ≤ s ∧ ∃ x y a b : Fin n → ℝ, (∀ i, a i ^ 2 + b i ^ 2 = 1 ∧ |a i| + |b i| ≤ 2*x i ∧ |a i| + |b i| ≤ 2*(s-x i) ∧ |a i| + |b i| ≤ 2*y i ∧ |a i| + |b i| ≤ 2*(s-y i)) ∧ (∀ i j, i ≠ j → ∀ X Y : ℝ, inside (x i) (y i) (a i) (b i) X Y → ¬ inside (x j) (y j) (a j) (b j) X Y); fits 17 (9351/2000)",
         "plain_statement": {
@@ -10507,14 +10590,94 @@
         ],
         "parallel": true,
         "challenge_only": true,
-        "module": "Conjectures.SquarePacking.SeventeenUpper46755",
-        "file": "lean/Conjectures/SquarePacking/SeventeenUpper46755.lean",
-        "route_source": "seventeen-square-frontier",
         "imports": [
           "PEqualNP.Outside.L_square_packing_rotated_square_containment",
           "PEqualNP.Outside.L_square_packing_rational_rotation",
           "PEqualNP.Outside.L_square_packing_axis_dot_certificate",
           "PEqualNP.Outside.L_square_packing_scaled_box_two_axes"
+        ],
+        "file": "lean/Conjectures/SquarePacking/SeventeenUpper46755.lean",
+        "module": "Conjectures.SquarePacking.SeventeenUpper46755",
+        "route_source": "seventeen-square-frontier"
+      },
+      {
+        "id": "L-square-packing-seventeen-weight-budget",
+        "statement": "∀ (n k q : ℕ) (S : Fin n → Finset (Fin k)) (w : Fin k → ℕ), (∀ i j, i ≠ j → Disjoint (S i) (S j)) → (∀ i, q ≤ ∑ j ∈ S i, w j) → n*q ≤ ∑ j, w j",
+        "plain_statement": {
+          "zh": "证明互不相交的击中点集合满足总权重预算。",
+          "en": "Prove the total weight budget for disjoint sets of hit sites."
+        },
+        "brief": {
+          "zh": "用双重求和或不交并，把每块需要的权重相加。",
+          "en": "Sum the required per-square weights using a disjoint union."
+        },
+        "source": "https://squaremath.org/cases/17.html",
+        "program": "correlation",
+        "track": "seventeen-square-frontier",
+        "role": "input",
+        "depends_on": [
+          "L-square-packing-piercing-count"
+        ],
+        "parallel": true,
+        "challenge_only": false,
+        "module": "Conjectures.SquarePacking.SeventeenWeightBudget",
+        "file": "lean/Conjectures/SquarePacking/SeventeenWeightBudget.lean",
+        "route_source": "seventeen-square-frontier",
+        "imports": []
+      },
+      {
+        "id": "L-square-packing-seventeen-weighted-bridge-4661",
+        "statement": "(let inside := fun (x y a b X Y : ℝ) => |a*(X-x)+b*(Y-y)| < 1/2 ∧ |(-b)*(X-x)+a*(Y-y)| < 1/2; ∃ (k : ℕ) (X Y : Fin k → ℚ) (w : Fin k → ℕ) (q : ℕ), 0 < q ∧ (∑ j, w j) < 17*q ∧ ∀ x y a b : ℝ, (a ^ 2 + b ^ 2 = 1 ∧ |a| + |b| ≤ 2*x ∧ |a| + |b| ≤ 2*((4661/1000:ℝ)-x) ∧ |a| + |b| ≤ 2*y ∧ |a| + |b| ≤ 2*((4661/1000:ℝ)-y)) → q ≤ (∑ j : Fin k, (if inside x y a b (X j) (Y j) then w j else 0))) → (let inside := fun (x y a b X Y : ℝ) => |a*(X-x)+b*(Y-y)| < 1/2 ∧ |(-b)*(X-x)+a*(Y-y)| < 1/2; let fits := fun (n : ℕ) (s : ℝ) => 0 ≤ s ∧ ∃ x y a b : Fin n → ℝ, (∀ i, a i ^ 2 + b i ^ 2 = 1 ∧ |a i| + |b i| ≤ 2*x i ∧ |a i| + |b i| ≤ 2*(s-x i) ∧ |a i| + |b i| ≤ 2*y i ∧ |a i| + |b i| ≤ 2*(s-y i)) ∧ (∀ i j, i ≠ j → ∀ X Y : ℝ, inside (x i) (y i) (a i) (b i) X Y → ¬ inside (x j) (y j) (a j) (b j) X Y); ¬ fits 17 (4661/1000))",
+        "plain_statement": {
+          "zh": "把加权击中点证书组合成 17 块装不下的结论。",
+          "en": "Turn a weighted piercing certificate into impossibility for seventeen squares."
+        },
+        "brief": {
+          "zh": "用每块严格内部互不相交，保证每个见证点的权重至多计入一次。",
+          "en": "Disjoint interiors ensure each site's weight is charged at most once."
+        },
+        "source": "https://squaremath.org/cases/17.html",
+        "program": "correlation",
+        "track": "seventeen-square-frontier",
+        "role": "input",
+        "depends_on": [
+          "L-square-packing-seventeen-weight-budget"
+        ],
+        "parallel": true,
+        "challenge_only": false,
+        "module": "Conjectures.SquarePacking.SeventeenWeightedBridge4661",
+        "file": "lean/Conjectures/SquarePacking/SeventeenWeightedBridge4661.lean",
+        "route_source": "seventeen-square-frontier",
+        "imports": []
+      },
+      {
+        "id": "L-square-packing-seventeen-weighted-sites-4661",
+        "statement": "let inside := fun (x y a b X Y : ℝ) => |a*(X-x)+b*(Y-y)| < 1/2 ∧ |(-b)*(X-x)+a*(Y-y)| < 1/2; ∃ (k : ℕ) (X Y : Fin k → ℚ) (w : Fin k → ℕ) (q : ℕ), 0 < q ∧ (∑ j, w j) < 17*q ∧ ∀ x y a b : ℝ, (a ^ 2 + b ^ 2 = 1 ∧ |a| + |b| ≤ 2*x ∧ |a| + |b| ≤ 2*((4661/1000:ℝ)-x) ∧ |a| + |b| ≤ 2*y ∧ |a| + |b| ≤ 2*((4661/1000:ℝ)-y)) → q ≤ (∑ j : Fin k, (if inside x y a b (X j) (Y j) then w j else 0))",
+        "plain_statement": {
+          "zh": "为边长 4.661 构造加权击中点证书。",
+          "en": "Construct a weighted piercing certificate at side 4.661."
+        },
+        "brief": {
+          "zh": "先复现 R071 的覆盖思路，再搜索新权重和点位。容量不够时记录失败模型。单层加权点只是充分条件，可能需要更强的混合证书。",
+          "en": "Start with the R071 covering approach and search for new sites and weights. Record obstructions if point weights alone are insufficient."
+        },
+        "source": "https://squaremath.org/cases/17.html",
+        "program": "correlation",
+        "track": "seventeen-square-frontier",
+        "role": "input",
+        "depends_on": [
+          "L-square-packing-seventeen-charge-angle-symmetry",
+          "L-square-packing-seventeen-charge-cell-transfer",
+          "L-square-packing-rational-rotation",
+          "L-square-packing-projection-radius"
+        ],
+        "parallel": true,
+        "challenge_only": false,
+        "module": "Conjectures.SquarePacking.SeventeenWeightedSites4661",
+        "file": "lean/Conjectures/SquarePacking/SeventeenWeightedSites4661.lean",
+        "route_source": "seventeen-square-frontier",
+        "imports": [
+          "PEqualNP.Outside.L_square_packing_rational_rotation"
         ]
       }
     ],
@@ -11543,9 +11706,45 @@
         ],
         "tasks": [
           {
+            "id": "L-square-packing-seventeen-charge-angle-symmetry",
+            "zh": "把单块的权重核验缩减到 0 至 45 度。",
+            "en": "Reduce single-square charge verification to orientations between 0 and 45 degrees.",
+            "route_source": "seventeen-square-frontier"
+          },
+          {
+            "id": "L-square-packing-seventeen-charge-cell-transfer",
+            "zh": "证明带严格余量的一维投影在扰动后仍处于内部。",
+            "en": "Preserve strict interior projection membership under a certified perturbation.",
+            "route_source": "seventeen-square-frontier"
+          },
+          {
+            "id": "L-square-packing-seventeen-lower-4661",
+            "zh": "证明边长 4.661 的正方形无法容纳 17 个可自由旋转的单位正方形。",
+            "en": "Rule out an unrestricted seventeen-square packing at side 4.661.",
+            "route_source": "seventeen-square-frontier"
+          },
+          {
             "id": "L-square-packing-seventeen-upper-46755",
             "zh": "在边长 4.6755 的正方形中放入 17 个可独立旋转的单位正方形，允许边界接触，内部互不重叠。",
             "en": "Pack 17 independently rotatable unit squares in a square of side 4.6755, allowing boundary contact and forbidding overlap of interiors.",
+            "route_source": "seventeen-square-frontier"
+          },
+          {
+            "id": "L-square-packing-seventeen-weight-budget",
+            "zh": "证明互不相交的击中点集合满足总权重预算。",
+            "en": "Prove the total weight budget for disjoint sets of hit sites.",
+            "route_source": "seventeen-square-frontier"
+          },
+          {
+            "id": "L-square-packing-seventeen-weighted-bridge-4661",
+            "zh": "把加权击中点证书组合成 17 块装不下的结论。",
+            "en": "Turn a weighted piercing certificate into impossibility for seventeen squares.",
+            "route_source": "seventeen-square-frontier"
+          },
+          {
+            "id": "L-square-packing-seventeen-weighted-sites-4661",
+            "zh": "为边长 4.661 构造加权击中点证书。",
+            "en": "Construct a weighted piercing certificate at side 4.661.",
             "route_source": "seventeen-square-frontier"
           }
         ],
