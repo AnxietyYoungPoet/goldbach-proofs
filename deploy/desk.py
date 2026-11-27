@@ -208,6 +208,17 @@ class Desk:
                              self.refutation_targets.items())
             conn.commit()
             self.openings = dict(conn.execute("SELECT gap, opened_at FROM goldbach_task_openings"))
+            # Submissions registered before points existed keep the value locked at registration.
+            legacy = conn.execute("""
+                SELECT token_hash, gap, submitted_at FROM goldbach_leases
+                WHERE points IS NULL AND typeof(submitted_at) = 'integer'
+            """).fetchall()
+            conn.executemany("UPDATE goldbach_leases SET points = ? WHERE token_hash = ?", [
+                (self.points(gap, submitted_at) if self.refutation_targets.get(gap, gap) in self.openings else 1,
+                 token_hash)
+                for token_hash, gap, submitted_at in legacy
+            ])
+            conn.commit()
 
     def points(self, gap, now):
         return 1 + max(0, now - self.openings[self.refutation_targets.get(gap, gap)]) // 180
